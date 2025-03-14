@@ -1,0 +1,115 @@
+.results {
+  display: grid;
+  column-gap: 14px;
+  row-gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 400px));
+  margin-top: 50px;
+  justify-content: space-around;
+}
+
+.form-group {
+  flex-direction: column;
+  display: flex;
+  gap:10px;
+}
+
+.sex-form-group {
+  display: flex;
+  gap:10px;
+  padding-top:10px;
+  padding-bottom: 10px;
+}
+
+input[type="text"] , input[type="number"] {
+  border: solid 1px var(--primary-color);
+  padding: 10px;
+  border-radius: 8px;
+  margin-right: 4px;
+  display: inline-block;
+  width: 50%;
+  margin-bottom: 10px;
+}
+
+form {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin-top: 20px;
+}
+/* 
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+} */
+
+.smoker-form-group{
+  display: flex;
+  flex-direction: column;
+  gap:10px;
+  padding-top:10px;
+  padding-bottom: 10px;
+}
+
+.smoker-button {
+  background-color: #28a745; 
+  color: white;
+  margin-right: 10px;
+}
+
+.smoker-button:hover {
+  background-color: #218838; /* Darker green */
+}
+
+.smoker-button.active {
+  background-color: #155724; /* Even darker green */
+  color: white;
+}
+
+/* No button styling */
+.btn-danger {
+  background-color: #dc3545; /* Red */
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c82333; /* Darker red */
+}
+
+.btn-danger.active {
+  background-color: #bd2130; /* Even darker red */
+  color: white;
+}
+
+/* Submit button styling */
+.primary {
+  background-color: #007bff; /* Blue */
+  color: white;
+}
+
+.primary:hover {
+  background-color: #0056b3; /* Darker blue */
+}
+
+.primary:active {
+  background-color: #004085; /* Even darker blue */
+  color: white;
+}
+
+@media (min-width: 500px) and (max-width: 768px) {
+  .results {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  input[type="text"] {
+    width: 70%;
+  }
+}
+
+@media (max-width: 499px) {
+  .results {
+    grid-template-columns: 1fr;
+  }
+}

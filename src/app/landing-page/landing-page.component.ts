@@ -1,153 +1,178 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormGroup,
-  FormControl,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InsuranceTableComponent } from '../insurance-table/insurance-table.component';
 import { SmokerButtonValueAccessorDirective } from '../smoker-button-value-accessor-directive';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-landing-page',
+  standalone: true,
   imports: [
     CommonModule,
     InsuranceTableComponent,
     SmokerButtonValueAccessorDirective,
-    MatFormFieldModule,
-    MatInputModule,
-    InsuranceTableComponent,
     ReactiveFormsModule,
-    MatSelectModule,
-    SmokerButtonValueAccessorDirective,
   ],
   template: `
-    <h1>Insurance Application</h1>
-    <section>
-      <form
-        #myForm="ngForm"
-        [formGroup]="applyForm"
-        (submit)="submitApplication()"
-      >
-        <!-- Age Form Group -->
-        <div class="form-group">
-          <label for="age"> Age </label>
-          <input id="age" type="number" formControlName="age" name="age" />
-        </div>
-
-        <!-- Sex Form Group -->
-        <div class="sex-form-group">
-          <label for="sex"> Sex </label>
-          <div class="form-check">
+    <div class="container">
+      <h1 class="my-4">Insurance Application</h1>
+      <section>
+        <form
+          #myForm="ngForm"
+          [formGroup]="applyForm"
+          (submit)="submitApplication()"
+        >
+          <!-- Age Form Group -->
+          <div class="mb-3">
+            <label for="age" class="form-label">Age</label>
             <input
-              class="form-check-input"
-              type="radio"
-              name="sex"
-              id="femaleRadio"
-              value="female"
-              formControlName="sex"
-              checked
+              id="age"
+              type="number"
+              class="form-control"
+              formControlName="age"
+              name="age"
             />
-            <label class="form-check-label" for="femaleRadio"> Female </label>
-          </div>
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="radio"
-              name="sex"
-              id="maleRadio"
-              value="male"
-              formControlName="sex"
-            />
-            <label class="form-check-label" for="maleRadio"> Male </label>
-          </div>
-        </div>
-
-        <!-- BMI Form Group -->
-        <div class="form-group">
-          <label for="bmi"> BMI </label>
-          <input id="bmi" type="number" formControlName="bmi" name="bmi" />
-        </div>
-
-        <button type="button" class="btn btn-primary">Primary</button>
-        
-        <!-- Number of Children Form Group -->
-        <div class="form-group">
-          <label for="numOfChildren"> Number of Children </label>
-          <input
-            id="numOfChildren"
-            type="number"
-            formControlName="numOfChildren"
-            name="numOfChildren"
-          />
-        </div>
-
-        <!-- Smoker Form Group -->
-        <div class="smoker-form-group">
-          <label for="smoker"> Smoker </label>
-          <div class="smoker-button-container">
-            <div class="form-group">
-              <div class="smoker-button-container">
-                <button
-                  type="button"
-                  class="smoker-button"
-                  [smokerButton]="'yes'"
-                  formControlName="smoker"
-                >
-                  Yes
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-danger"
-                  [smokerButton]="'no'"
-                  formControlName="smoker"
-                >
-                  No
-                </button>
+            <div *ngIf="applyForm.get('age')?.invalid && applyForm.get('age')?.touched">
+              <div *ngIf="applyForm.get('age')?.hasError('required')" class="alert alert-danger">
+                Age is required.
+              </div>
+              <div *ngIf="applyForm.get('age')?.hasError('min') && applyForm.get('age')?.touched" class="alert alert-danger">
+                Age must be at least 1.
+              </div>
+              <div *ngIf="applyForm.get('age')?.hasError('max') && applyForm.get('age')?.touched" class="alert alert-danger">
+                Age must not exceed 100.
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Region Form Group -->
-        <div class="form-group">
-          <mat-form-field>
-            <mat-label>Region</mat-label>
-            <mat-select formControlName="region">
-              <mat-option> None </mat-option>
-              <mat-option value="north"> North</mat-option>
-              <mat-option value="northeast"> North - East</mat-option>
-              <mat-option value="northwest"> North - West</mat-option>
-              <mat-option value="south"> South</mat-option>
-              <mat-option value="southeast"> South - East</mat-option>
-              <mat-option value="southwest"> South - West</mat-option>
-              <mat-option value="central"> Central</mat-option>
-              <mat-option value="east"> East</mat-option>
-              <mat-option value="west"> West</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
+          <!-- Sex Form Group -->
+          <div class="mb-3">
+            <label class="form-label">Sex</label>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="sex"
+                id="femaleRadio"
+                value="female"
+                formControlName="sex"
+                checked
+              />
+              <label class="form-check-label" for="femaleRadio">Female</label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="sex"
+                id="maleRadio"
+                value="male"
+                formControlName="sex"
+              />
+              <label class="form-check-label" for="maleRadio">Male</label>
+            </div>
+          </div>
 
-        <!-- Submit Button -->
-        <button class="primary" type="submit" [disabled]="applyForm.invalid">
-          Send
-        </button>
-      </form>
-    </section>
+          <!-- BMI Form Group -->
+          <div class="mb-3">
+            <label for="bmi" class="form-label">BMI</label>
+            <input
+              id="bmi"
+              type="number"
+              class="form-control"
+              formControlName="bmi"
+              name="bmi"
+            />
+            <div *ngIf="applyForm.get('bmi')?.invalid && applyForm.get('bmi')?.touched">
+              <div *ngIf="applyForm.get('bmi')?.hasError('required')" class="alert alert-danger">
+                BMI is required.
+              </div>
+              <div *ngIf="applyForm.get('bmi')?.hasError('min')" class="alert alert-danger">
+                BMI must be at least 1.
+              </div>
+              <div *ngIf="applyForm.get('bmi')?.hasError('max')" class="alert alert-danger">
+                BMI must not exceed 100.
+              </div>
+            </div>
+          </div>
 
-    <div>
-      <app-insurance-table></app-insurance-table>
+          <!-- Number of Children Form Group -->
+          <div class="mb-3">
+            <label for="numOfChildren" class="form-label">Number of Children</label>
+            <input
+              id="numOfChildren"
+              type="number"
+              class="form-control"
+              formControlName="numOfChildren"
+              name="numOfChildren"
+            />
+          </div>
+
+          <!-- Smoker Form Group -->
+          <div class="mb-3">
+            <label for="smoker" class="form-label">Smoker</label>
+            <div class="d-flex">
+              <button
+                type="button"
+                class="btn btn-success me-2"
+                [smokerButton]="'yes'"
+                formControlName="smoker"
+              >
+                Yes
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger"
+                [smokerButton]="'no'"
+                formControlName="smoker"
+              >
+                No
+              </button>
+            </div>
+          </div>
+
+          <!-- Region Form Group -->
+          <div class="mb-3">
+            <label for="region" class="form-label">Region</label>
+            <select
+              class="form-select"
+              formControlName="region"
+              id="region"
+            >
+              <option value="">None</option>
+              <option value="north">North</option>
+              <option value="northeast">North-East</option>
+              <option value="northwest">North-West</option>
+              <option value="south">South</option>
+              <option value="southeast">South-East</option>
+              <option value="southwest">South-West</option>
+              <option value="central">Central</option>
+              <option value="east">East</option>
+              <option value="west">West</option>
+            </select>
+          </div>
+
+          <!-- Submit Button -->
+          <button
+            class="btn btn-primary"
+            type="submit"
+            [disabled]="applyForm.invalid"
+          >
+            Submit
+          </button>
+        </form>
+      </section>
+
+      <div class="mt-4">
+        <app-insurance-table></app-insurance-table>
+      </div>
     </div>
   `,
-  styleUrl: '',
+  styleUrls: ['./landing-page.component.scss'],
 })
 export class LandingPageComponent {
   applyForm: FormGroup;
+
   constructor() {
     this.applyForm = new FormGroup({
       age: new FormControl('', [
@@ -176,14 +201,14 @@ export class LandingPageComponent {
       smoker: ${this.applyForm.value.smoker},\n
       region: ${this.applyForm.value.region},\n
       charges: ${this.calculateCharges()}
-      `);
+    `);
   }
 
   setSmoker(value: string) {
     this.applyForm.get('smoker')!.setValue(value);
   }
-  
-  calculateCharges(){
+
+  calculateCharges() {
     let charges: number = 1000;
     let age = this.applyForm.value.age * 50;
     let bmi = this.applyForm.value.bmi * 20;

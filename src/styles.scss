@@ -1,0 +1,33 @@
+@use '@angular/material' as mat;
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Be Vietnam Pro", sans-serif;
+
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    density: 0,
+  ));
+}
+:root {
+  --primary-color: #13538a;
+  --secondary-color: #8b89e6;
+  --accent-color: #e8e7fa;
+  --shadow-color: #e8e8e8;
+}
+
+// button.primary {
+//   padding: 10px;
+//   border: solid 1px var(--primary-color);
+//   background: var(--primary-color);
+//   color: white;
+//   border-radius: 8px;
+// }

@@ -1,0 +1,32 @@
+/* Header Styling */
+header {
+  display: flex;
+  flex:space-around;
+  height: 60px;
+  padding: var(--content-padding);
+  box-shadow: 0px 5px 25px var(--shadow-color);
+}
+
+header h1 {
+  margin: 0;
+  padding: 10px;
+  font-weight: bold;
+}
+
+header nav{
+  margin-left: auto;
+  padding-right : 50px;
+}
+
+header nav ul {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  padding:15px;
+}
+
+header nav ul li a {
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+}
