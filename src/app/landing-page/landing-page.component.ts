@@ -1,8 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InsuranceTableComponent } from '../insurance-table/insurance-table.component';
 import { SmokerButtonValueAccessorDirective } from '../smoker-button-value-accessor-directive';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+
+// Custom Validator for Negative or Null Values
+export function nonNegativeChildrenValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (value === null || value < 0) {
+      return { negativeOrNullChildren: true };
+    }
+    return null;
+  };
+}
 
 @Component({
   selector: 'app-landing-page',
@@ -13,164 +25,10 @@ import { SmokerButtonValueAccessorDirective } from '../smoker-button-value-acces
     SmokerButtonValueAccessorDirective,
     ReactiveFormsModule,
   ],
-  template: `
-    <div class="container">
-      <h1 class="my-4">Insurance Application</h1>
-      <section>
-        <form
-          #myForm="ngForm"
-          [formGroup]="applyForm"
-          (submit)="submitApplication()"
-        >
-          <!-- Age Form Group -->
-          <div class="mb-3">
-            <label for="age" class="form-label">Age</label>
-            <input
-              id="age"
-              type="number"
-              class="form-control"
-              formControlName="age"
-              name="age"
-            />
-            <div *ngIf="applyForm.get('age')?.invalid && applyForm.get('age')?.touched">
-              <div *ngIf="applyForm.get('age')?.hasError('required')" class="alert alert-danger">
-                Age is required.
-              </div>
-              <div *ngIf="applyForm.get('age')?.hasError('min') && applyForm.get('age')?.touched" class="alert alert-danger">
-                Age must be at least 1.
-              </div>
-              <div *ngIf="applyForm.get('age')?.hasError('max') && applyForm.get('age')?.touched" class="alert alert-danger">
-                Age must not exceed 100.
-              </div>
-            </div>
-          </div>
-
-          <!-- Sex Form Group -->
-          <div class="mb-3">
-            <label class="form-label">Sex</label>
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="sex"
-                id="femaleRadio"
-                value="female"
-                formControlName="sex"
-                checked
-              />
-              <label class="form-check-label" for="femaleRadio">Female</label>
-            </div>
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="sex"
-                id="maleRadio"
-                value="male"
-                formControlName="sex"
-              />
-              <label class="form-check-label" for="maleRadio">Male</label>
-            </div>
-          </div>
-
-          <!-- BMI Form Group -->
-          <div class="mb-3">
-            <label for="bmi" class="form-label">BMI</label>
-            <input
-              id="bmi"
-              type="number"
-              class="form-control"
-              formControlName="bmi"
-              name="bmi"
-            />
-            <div *ngIf="applyForm.get('bmi')?.invalid && applyForm.get('bmi')?.touched">
-              <div *ngIf="applyForm.get('bmi')?.hasError('required')" class="alert alert-danger">
-                BMI is required.
-              </div>
-              <div *ngIf="applyForm.get('bmi')?.hasError('min')" class="alert alert-danger">
-                BMI must be at least 1.
-              </div>
-              <div *ngIf="applyForm.get('bmi')?.hasError('max')" class="alert alert-danger">
-                BMI must not exceed 100.
-              </div>
-            </div>
-          </div>
-
-          <!-- Number of Children Form Group -->
-          <div class="mb-3">
-            <label for="numOfChildren" class="form-label">Number of Children</label>
-            <input
-              id="numOfChildren"
-              type="number"
-              class="form-control"
-              formControlName="numOfChildren"
-              name="numOfChildren"
-            />
-          </div>
-
-          <!-- Smoker Form Group -->
-          <div class="mb-3">
-            <label for="smoker" class="form-label">Smoker</label>
-            <div class="d-flex">
-              <button
-                type="button"
-                class="btn btn-success me-2"
-                [smokerButton]="'yes'"
-                formControlName="smoker"
-              >
-                Yes
-              </button>
-              <button
-                type="button"
-                class="btn btn-danger"
-                [smokerButton]="'no'"
-                formControlName="smoker"
-              >
-                No
-              </button>
-            </div>
-          </div>
-
-          <!-- Region Form Group -->
-          <div class="mb-3">
-            <label for="region" class="form-label">Region</label>
-            <select
-              class="form-select"
-              formControlName="region"
-              id="region"
-            >
-              <option value="">None</option>
-              <option value="north">North</option>
-              <option value="northeast">North-East</option>
-              <option value="northwest">North-West</option>
-              <option value="south">South</option>
-              <option value="southeast">South-East</option>
-              <option value="southwest">South-West</option>
-              <option value="central">Central</option>
-              <option value="east">East</option>
-              <option value="west">West</option>
-            </select>
-          </div>
-
-          <!-- Submit Button -->
-          <button
-            class="btn btn-primary"
-            type="submit"
-            [disabled]="applyForm.invalid"
-          >
-            Submit
-          </button>
-        </form>
-      </section>
-
-      <div class="mt-4">
-        <app-insurance-table></app-insurance-table>
-      </div>
-    </div>
-  `,
+  templateUrl: './landing-page.component.html', // Use the external HTML file
   styleUrls: ['./landing-page.component.scss'],
 })
-export class LandingPageComponent {
+export class LandingPageComponent implements OnInit {
   applyForm: FormGroup;
 
   constructor() {
@@ -180,16 +38,61 @@ export class LandingPageComponent {
         Validators.min(1),
         Validators.max(100),
       ]),
-      sex: new FormControl(''),
+      sex: new FormControl('male'), // Set 'female' as the default value
       bmi: new FormControl('', [
         Validators.required,
         Validators.min(1),
         Validators.max(100),
       ]),
-      numOfChildren: new FormControl(''),
+      numOfChildren: new FormControl('', [nonNegativeChildrenValidator()]),
       smoker: new FormControl(''),
       region: new FormControl(''),
     });
+  }
+
+  ngOnInit() {
+    const numOfChildrenControl = this.applyForm.get('numOfChildren');
+
+    // Listen for changes to numOfChildren and update validation
+    numOfChildrenControl?.valueChanges.subscribe((value) => {
+      // Reset all errors first
+      numOfChildrenControl?.setErrors(null);
+
+      // Check for negative or null value
+      if (value === null || value < 0) {
+        numOfChildrenControl?.setErrors({ negativeOrNullChildren: true });
+      }
+
+      // Check if number of children exceeds the limit
+      if (value > 100) {
+        numOfChildrenControl?.setErrors({ tooHighChildren: true });
+        
+        // Trigger Bootstrap alert for too high number of children
+        this.showTooHighChildrenAlert(value);
+      } else {
+        // Remove alert if value goes back below the threshold
+        this.hideTooHighChildrenAlert();
+      }
+    });
+  }
+
+  showTooHighChildrenAlert(value: number): void {
+    const alertContainer = document.getElementById('alert-container');
+    if (alertContainer) {
+      alertContainer.innerHTML = `
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <strong>Warning!</strong> The number of children (${value}) is too high.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      `;
+    }
+  }
+
+  hideTooHighChildrenAlert(): void {
+    const alertContainer = document.getElementById('alert-container');
+    if (alertContainer) {
+      alertContainer.innerHTML = ''; // Clear the alert
+    }
   }
 
   submitApplication() {

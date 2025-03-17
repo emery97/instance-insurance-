@@ -6,20 +6,7 @@ import { RouterModule } from '@angular/router';
   imports: [
     RouterModule,
   ],
-  template: `
-    <header>
-      <div class="logo">
-        <h1>Instant Insurance</h1>
-      </div>
-
-      <nav>
-        <ul>
-          <li><a href="home">Home</a></li>
-          <li><a href="dashboard" [routerLink]="['dashboard']">Dashboard</a></li>
-        </ul>
-      </nav>
-    </header>
-  `,
-  styleUrl: './header.component.css',
+  templateUrl: './header.component.html',  // Updated to refer to external HTML file
+  styleUrls: ['./header.component.css'],  // Ensure you use 'styleUrls' for the external CSS file
 })
 export class HeaderComponent {}

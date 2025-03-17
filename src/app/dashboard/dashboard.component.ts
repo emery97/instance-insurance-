@@ -3,11 +3,7 @@ import { HeaderComponent } from '../header/header.component';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [HeaderComponent],
-  template: `
-    <app-header></app-header>
-    <h1>Insurance Dashboard</h1>
-  `,
-  styleUrl: './dashboard.component.css',
+  templateUrl: './dashboard.component.html',  // Reference the HTML file
+  styleUrls: ['./dashboard.component.css'],  // Reference the CSS file
 })
 export class DashboardComponent {}

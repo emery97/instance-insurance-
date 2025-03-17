@@ -37,14 +37,6 @@ form {
   background-color: #f9f9f9;
   margin-top: 20px;
 }
-/* 
-button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
-} */
 
 .smoker-form-group{
   display: flex;

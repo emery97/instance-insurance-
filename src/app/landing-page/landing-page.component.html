@@ -1,0 +1,161 @@
+<div class="container">
+    <h1 class="my-4">Insurance Application</h1>
+    <section>
+      <form #myForm="ngForm" [formGroup]="applyForm" (submit)="submitApplication()">
+        <!-- Age Form Group -->
+        <div class="mb-3">
+          <label for="age" class="form-label">Age</label>
+          <input
+            id="age"
+            type="number"
+            class="form-control"
+            formControlName="age"
+            name="age"
+          />
+          <div *ngIf="applyForm.get('age')?.invalid && applyForm.get('age')?.touched">
+            <div *ngIf="applyForm.get('age')?.hasError('required')" class="alert alert-danger">
+              Age is required.
+            </div>
+            <div *ngIf="applyForm.get('age')?.hasError('min')" class="alert alert-danger">
+              Age must be at least 1.
+            </div>
+            <div *ngIf="applyForm.get('age')?.hasError('max')" class="alert alert-danger">
+              Age must not exceed 100.
+            </div>
+          </div>
+        </div>
+  
+        <!-- Gender Form Group -->
+        <div class="mb-3">
+          <label class="form-label">Sex</label>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="sex"
+              id="femaleRadio"
+              value="female"
+              formControlName="sex"
+            />
+            <label class="form-check-label" for="femaleRadio">Female</label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="sex"
+              id="maleRadio"
+              value="male"
+              formControlName="sex"
+            />
+            <label class="form-check-label" for="maleRadio">Male</label>
+          </div>
+        </div>
+  
+        <!-- BMI Form Group -->
+        <div class="mb-3">
+          <label for="bmi" class="form-label">BMI</label>
+          <input
+            id="bmi"
+            type="number"
+            class="form-control"
+            formControlName="bmi"
+            name="bmi"
+          />
+          <div *ngIf="applyForm.get('bmi')?.invalid && applyForm.get('bmi')?.touched">
+            <div *ngIf="applyForm.get('bmi')?.hasError('required')" class="alert alert-danger">
+              BMI is required.
+            </div>
+            <div *ngIf="applyForm.get('bmi')?.hasError('min')" class="alert alert-danger">
+              BMI must be at least 1.
+            </div>
+            <div *ngIf="applyForm.get('bmi')?.hasError('max')" class="alert alert-danger">
+              BMI must not exceed 100.
+            </div>
+          </div>
+        </div>
+  
+        <!-- Number of Children Form Group -->
+    <!-- Number of Children Form Group -->
+    <div class="mb-3">
+        <label for="numOfChildren" class="form-label">Number of Children</label>
+        <input
+        id="numOfChildren"
+        type="number"
+        class="form-control"
+        formControlName="numOfChildren"
+        name="numOfChildren"
+        />
+        <div *ngIf="applyForm.get('numOfChildren')?.touched">
+        <!-- Show an error if the number of children is negative or null -->
+        <div *ngIf="applyForm.get('numOfChildren')?.hasError('negativeOrNullChildren')" class="alert alert-danger">
+            Number of children cannot be negative or null.
+        </div>
+        <!-- Show a warning if the number of children is too high -->
+        <div *ngIf="applyForm.get('numOfChildren')?.hasError('tooHighChildren')" class="alert alert-warning">
+            The number of children is too high for tax avoidance purposes. You might want to reconsider.
+        </div>
+        </div>
+    </div>
+  
+  
+        <!-- Smoker Form Group -->
+        <div class="mb-3">
+          <label for="smoker" class="form-label">Smoker</label>
+          <div class="d-flex">
+            <button
+              type="button"
+              class="btn btn-success me-2"
+              [smokerButton]="'yes'"
+              formControlName="smoker"
+            >
+              Yes
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger"
+              [smokerButton]="'no'"
+              formControlName="smoker"
+            >
+              No
+            </button>
+          </div>
+        </div>
+  
+        <!-- Region Form Group -->
+        <div class="mb-3">
+          <label for="region" class="form-label">Region</label>
+          <select
+            class="form-select"
+            formControlName="region"
+            id="region"
+          >
+            <option value="">None</option>
+            <option value="north">North</option>
+            <option value="northeast">North-East</option>
+            <option value="northwest">North-West</option>
+            <option value="south">South</option>
+            <option value="southeast">South-East</option>
+            <option value="southwest">South-West</option>
+            <option value="central">Central</option>
+            <option value="east">East</option>
+            <option value="west">West</option>
+          </select>
+        </div>
+  
+        <!-- Submit Button -->
+        <button
+          class="btn btn-primary"
+          type="submit"
+          [disabled]="applyForm.invalid"
+        >
+          Submit
+        </button>
+      </form>
+    </section>
+  
+    <div class="mt-4">
+      <app-insurance-table></app-insurance-table>
+    </div>
+  </div>
+  

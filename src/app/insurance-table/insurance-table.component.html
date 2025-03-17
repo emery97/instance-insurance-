@@ -1,19 +1,23 @@
 <h1>Insurance Table</h1>
-<table class = "app-insurance-table">
-    <tr>
-        <th>Age</th>
-        <th>Sex</th>
-        <th>BMI</th>
-        <th>Children</th>
-        <th>Smoker</th>
-        <th>Region</th>
-    </tr>
-    <tr *ngFor = "let record of insuranceData">
-        <td>{{record.age}}</td>
-        <td>{{record.sex}}</td>
-        <td>{{record.bmi}}</td>
-        <td>{{record.children}}</td>
-        <td>{{record.smoker}}</td>
-        <td>{{record.region}}</td>
-    </tr>
+<table class="table table-striped table-hover w-100">
+    <thead class="text-center">
+        <tr>
+            <th>Age</th>
+            <th>Sex</th>
+            <th>BMI</th>
+            <th>Children</th>
+            <th>Smoker</th>
+            <th>Region</th>
+        </tr>
+    </thead>
+    <tbody class="table-body-border">
+        <tr *ngFor="let record of insuranceData">
+            <td>{{record.age}}</td>
+            <td>{{record.sex}}</td>
+            <td>{{record.bmi}}</td>
+            <td>{{record.children}}</td>
+            <td>{{record.smoker}}</td>
+            <td>{{record.region}}</td>
+        </tr>
+    </tbody>
 </table>
