@@ -10,6 +10,17 @@ async function getInsuranceData(req,res){
     }
 }
 
+async function getAllAgeData(req,res){
+    try{
+        const data = await insuranceModel.getAllAgeData();
+        res.json(data);
+    }catch(error){  
+        console.error(error.message);
+        res.status(500).send('Server error');
+    }
+}
+
 module.exports = {
-    getInsuranceData
+    getInsuranceData,
+    getAllAgeData,
 }
