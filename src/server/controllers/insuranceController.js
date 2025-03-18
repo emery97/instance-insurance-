@@ -5,7 +5,6 @@ async function getInsuranceData(req, res) {
     try {
       console.log("Request to /insurance/data received");
       const data = await getAllInsuranceData();
-      console.log(data);
       res.status(200).json(data);
     } catch (err) {
       console.error('Error fetching insurance data:', err);
