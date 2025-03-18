@@ -28,11 +28,12 @@ export class SexPieChartComponent {
 
   setChartOptions(sexGroups: string[], customerCounts: number[]) {
     const chartData = sexGroups.map((group, index) => ({
-      name: group,      // Set the name of the group
-      y: customerCounts[index],  // Corresponding customer count for the group
+      name: group,
+      y: Number(customerCounts[index]) // Convert to number using parseInt
     }));
+    
 
-    console.log(chartData);
+    console.log("chart data: ",chartData);
     this.chartOptions = {
       chart: {
         type: 'pie',
@@ -90,10 +91,7 @@ export class SexPieChartComponent {
       series: [{
         enableMouseTracking: true,
         colorByPoint: true,
-        data: [
-          { name: 'male', y: 676 },
-          { name: 'female', y: 662 },
-        ]
+        data: chartData
       }]
     };
   }
