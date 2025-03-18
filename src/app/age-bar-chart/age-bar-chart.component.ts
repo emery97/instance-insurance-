@@ -31,7 +31,6 @@ export class AgeBarChartComponent {
     this.chartOptions = {
       chart: {
         type: 'column',
-        height: 400,
       },
       title: {
         text: 'Age Bar Chart',
@@ -51,8 +50,6 @@ export class AgeBarChartComponent {
         data: customerCounts,  // The number of customers should populate the y-values
       }],
     };
-  
-    console.log('Chart Options:', this.chartOptions);  // Log the chart options to verify
   }
-  
+
 }
