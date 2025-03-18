@@ -1,9 +1,5 @@
 .section {
-    display: flex;
     flex-direction: column;
-    width: 100%;
-    padding: 20px;
-
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap; /* Ensures charts wrap on smaller screens */
@@ -23,13 +19,16 @@
     /* Allows stacking on small screens */
 }
 
-.card-wrapper {
+.card-wrapper{
     width: 50%;
     /* Ensures each chart takes half */
     box-sizing: border-box;
     display: flex;
-    justify-content: center;
-    
+    justify-content: center; 
+}
+
+.card-wrapper-entire {
+    width: 100%; /* Takes up full width of the row */
 }
 
 /* Mobile responsiveness */
