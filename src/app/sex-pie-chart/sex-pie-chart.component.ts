@@ -5,19 +5,17 @@ import { SexService } from '../services/sex.service';
 
 @Component({
   selector: 'app-sex-pie-chart',
-  imports: [
-    HighchartsChartModule,
-  ],
-  providers: [
-    SexService
-  ],
+  standalone: true,
+  imports: [HighchartsChartModule],
+  providers: [SexService],
   templateUrl: './sex-pie-chart.component.html',
-  styleUrl: './sex-pie-chart.component.css'
+  styleUrls: ['./sex-pie-chart.component.css']
 })
 export class SexPieChartComponent {
   Highcharts = Highcharts;
   sexData: any = [];
   chartOptions: any = {};
+
   constructor(private sexService: SexService) { }
 
   ngOnInit() {
@@ -31,13 +29,33 @@ export class SexPieChartComponent {
   setChartOptions(sexGroups: string[], customerCounts: number[]) {
     this.chartOptions = {
       chart: {
-        type: 'pie'
+        type: 'pie',
+        events: {
+          render: function (this: Highcharts.Chart) {
+            const series = this.series[0]; // Assuming a single series
+            const points = series.points;
+            points.forEach((point, index) => {
+              const graphic = point.graphic;
+              if (graphic) {
+                // Apply custom animation for each slice
+                graphic.attr({
+                  opacity: 0, // Initially hide the slice
+                  transform: 'scale(0.1)' // Start with a smaller scale
+                }).animate({
+                  opacity: 1, // Fade in
+                  transform: 'scale(1)' // Scale back to normal size
+                }, {
+                  duration: 1000, // Duration of the animation for each slice
+                  easing: 'easeOutBounce', // You can change easing method
+                  // Delay to stagger the animation
+                });
+              }
+            });
+          }
+        }
       },
       title: {
-        text: 'Departmental Strength of a Company'
-      },
-      subtitle: {
-        text: 'Custom animation of pie series'
+        text: 'Sex Pie Chart'
       },
       tooltip: {
         headerFormat: '',
@@ -62,30 +80,18 @@ export class SexPieChartComponent {
           }
         }
       },
+      
       series: [{
-        // Disable mouse tracking on load, enable after custom animation
-        enableMouseTracking: false,
-        animation: {
-          duration: 2000
-        },
+        enableMouseTracking: true,
         colorByPoint: true,
-        data: [{
-          name: 'Customer Support',
-          y: 21.3
-        }, {
-          name: 'Development',
-          y: 18.7
-        }, {
-          name: 'Sales',
-          y: 20.2
-        }, {
-          name: 'Marketing',
-          y: 14.2
-        }, {
-          name: 'Other',
-          y: 25.6
-        }]
+        data: [
+          { name: 'Customer Support', y: 21.3 },
+          { name: 'Development', y: 18.7 },
+          { name: 'Sales', y: 20.2 },
+          { name: 'Marketing', y: 14.2 },
+          { name: 'Other', y: 25.6 }
+        ]
       }]
-    }
+    };
   }
 }
