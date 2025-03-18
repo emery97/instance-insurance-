@@ -1,11 +1,14 @@
 import { Component } from '@angular/core';
-import { HeaderComponent } from '../header/header.component';
 import { AgeBarChartComponent } from '../age-bar-chart/age-bar-chart.component';
+import { AgeService } from '../services/age.service';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [HeaderComponent, AgeBarChartComponent],  // Import the HeaderComponent and AgeBarChartComponent
-  templateUrl: './dashboard.component.html',  // Reference the HTML file
-  styleUrls: ['./dashboard.component.css'],  // Reference the CSS file
+  imports: [
+    AgeBarChartComponent,
+  ],
+  providers: [AgeService],
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.css'],
 })
-export class DashboardComponent {}
+export class DashboardComponent { }

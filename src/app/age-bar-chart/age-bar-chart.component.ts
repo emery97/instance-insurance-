@@ -7,31 +7,55 @@ import { AgeService } from '../services/age.service';
   selector: 'app-age-bar-chart',
   imports: [
     HighchartsChartModule,
-    AgeService
   ],
+  providers: [AgeService],
   templateUrl: './age-bar-chart.component.html',
   styleUrl: './age-bar-chart.component.css'
 })
 export class AgeBarChartComponent {
   Highcharts = Highcharts;
-  chartOptions: Highcharts.Options = {
-    chart:{
-      type: 'column'
-    },
-    title: {
-      text: 'Age Bar Chart'
-    },
-    xAxis: {
-      categories: ['A', 'B', 'C']
-    },
-    yAxis: {
-      title: {
-        text: 'Age'
-      }
-    },
-    series: [{
-      data: [1, 2, 3],
-      type: 'line',
-    }]
+  ageData: any = [];
+  chartOptions: any = {};
+  constructor(private ageService: AgeService) { }
+
+  ngOnInit() {
+    this.ageService.getAgeData().subscribe(data => {
+      // Mapping the age group and customer counts
+      // const ageGroups = data.map((item: any) => item.age_group);
+      // const customerCounts = data.map((item: any) => Number(item.customers));
+
+      const ageGroups = ['10-19', '20-29', '30-39'];
+  const customerCounts = [137, 280, 257];
+      this.setChartOptions(ageGroups, customerCounts);
+    });
   }
+
+  setChartOptions(ageGroups: string[], customerCounts: number[]) {
+    this.chartOptions = {
+      chart: {
+        type: 'column',
+        height: 400,
+      },
+      title: {
+        text: 'Age Bar Chart',
+      },
+      xAxis: {
+        categories: ageGroups,  // Age groups on the x-axis
+      },
+      yAxis: {
+        title: {
+          text: 'Number of Customers',
+        },
+        min: 0,  // Ensuring the y-axis starts from 0
+        tickInterval: 50,  // Adjust the interval if necessary
+      },
+      series: [{
+        name: 'Number of Customers',
+        data: customerCounts,  // The number of customers should populate the y-values
+      }],
+    };
+  
+    console.log('Chart Options:', this.chartOptions);  // Log the chart options to verify
+  }
+  
 }

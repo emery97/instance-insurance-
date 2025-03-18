@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AgeService {
-  private apiUrl = 'http://localhost:3000/age/data';
+  private apiUrl = 'http://localhost:3000/insurance/age';
   constructor(private http:HttpClient) { }
   getAgeData(): Observable<any> {
     return this.http.get(this.apiUrl);
