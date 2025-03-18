@@ -3,7 +3,6 @@ const { getAllInsuranceData, getAllAgeData,getSex } = require('../models/insuran
 
 async function getInsuranceData(req, res) {
     try {
-      console.log("Request to /insurance/data received");
       const data = await getAllInsuranceData();
       res.status(200).json(data);
     } catch (err) {
