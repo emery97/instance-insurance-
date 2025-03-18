@@ -12,6 +12,7 @@ app.use(express.json());
 app.use('/insurance/data', insuranceController.getInsuranceData);
 app.use('/insurance/age', insuranceController.getAgeData); 
 app.use('/insurance/sex', insuranceController.getSexData);
+app.use('/insurance/bmi', insuranceController.getBMIData);
 
 // Start the server
 app.listen(port, () => {

@@ -46,8 +46,31 @@ async function getSex() {
   return result.rows;
 }
 
+async function getBMI(){
+  const result = await pool.query(`
+    SELECT 
+      CASE
+        WHEN bmi BETWEEN 0 AND 9.9 THEN '0-9'
+        WHEN bmi BETWEEN 10 AND 19.9 THEN '10-19'
+        WHEN bmi BETWEEN 20 AND 29.9 THEN '20-29'
+        WHEN bmi BETWEEN 30 AND 39.9 THEN '30-39'
+        WHEN bmi BETWEEN 40 AND 49.9 THEN '40-49'
+        WHEN bmi BETWEEN 50 AND 59.9 THEN '50-59'
+        WHEN bmi BETWEEN 60 AND 69.9 THEN '60-69'
+        WHEN bmi BETWEEN 70 AND 79.9 THEN '70-79'
+        ELSE '80+'
+      END AS bmi_group,
+      COUNT(*) AS customers
+    FROM insurance.insurance
+    GROUP BY bmi_group
+    ORDER BY bmi_group;
+  `);
+  return result.rows;
+}
+
 module.exports = {
   getAllInsuranceData,
   getAllAgeData,
   getSex,
+  getBMI,
 };

@@ -1,5 +1,4 @@
-// src/server/controllers/insuranceController.js
-const { getAllInsuranceData, getAllAgeData,getSex } = require('../models/insuranceModel');
+const { getAllInsuranceData, getAllAgeData,getSex, getBMI } = require('../models/insuranceModel');
 
 async function getInsuranceData(req, res) {
     try {
@@ -27,7 +26,17 @@ async function getSexData(req,res){
     const data = await getSex();
     res.status(200).json(data);
   }catch (err) {
-    console.error('Error fetching age data:', err);
+    console.error('Error fetching sex data:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+}
+
+async function getBMIData(req,res) {
+  try{
+    const data = await getBMI();
+    res.status(200).json(data);
+  }catch (err) {
+    console.error('Error fetching BMI data:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 }
@@ -36,4 +45,5 @@ module.exports = {
   getInsuranceData,
   getAgeData,
   getSexData,
+  getBMIData,
 };
