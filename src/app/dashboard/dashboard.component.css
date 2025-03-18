@@ -1,0 +1,10 @@
+app-age-bar-chart {
+    width:100%;
+    height: 400px;
+    display: block;
+}
+
+.section {
+    min-height: 500px; /* Adjust as needed */
+  }
+  

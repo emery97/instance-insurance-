@@ -21,11 +21,8 @@ export class AgeBarChartComponent {
   ngOnInit() {
     this.ageService.getAgeData().subscribe(data => {
       // Mapping the age group and customer counts
-      // const ageGroups = data.map((item: any) => item.age_group);
-      // const customerCounts = data.map((item: any) => Number(item.customers));
-
-      const ageGroups = ['10-19', '20-29', '30-39'];
-  const customerCounts = [137, 280, 257];
+      const ageGroups = data.map((item: any) => item.age_group);
+      const customerCounts = data.map((item: any) => Number(item.customers));
       this.setChartOptions(ageGroups, customerCounts);
     });
   }
