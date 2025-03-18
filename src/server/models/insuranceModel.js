@@ -36,7 +36,18 @@ async function getAllAgeData() {
   return result.rows;
 }
 
+async function getSex() {
+  const result = await pool.query(`
+    SELECT sex, 
+    COUNT(*) AS count
+    FROM insurance.insurance
+    GROUP BY sex;
+    `);
+  return result.rows;
+}
+
 module.exports = {
   getAllInsuranceData,
   getAllAgeData,
+  getSex,
 };
