@@ -1,26 +1,30 @@
-const insuranceModel = require('../models/insuranceModel'); // Import model
+// src/server/controllers/insuranceController.js
+const { getAllInsuranceData, getAllAgeData } = require('../models/insuranceModel');
 
-async function getInsuranceData(req,res){
-    try{
-        const data = await insuranceModel.getAllInsuranceData();
-        res.json(data);
-    }catch(error){
-        console.error(error.message);
-        res.status(500).send('Server error'); 
+async function getInsuranceData(req, res) {
+    try {
+      console.log("Request to /insurance/data received");
+      const data = await getAllInsuranceData();
+      console.log(data);
+      res.status(200).json(data);
+    } catch (err) {
+      console.error('Error fetching insurance data:', err);
+      res.status(500).json({ message: 'Server error', error: err.message });
     }
-}
+  }
+  
 
-async function getAllAgeData(req,res){
-    try{
-        const data = await insuranceModel.getAllAgeData();
-        res.json(data);
-    }catch(error){  
-        console.error(error.message);
-        res.status(500).send('Server error');
-    }
+async function getAgeData(req, res) {
+  try {
+    const data = await getAllAgeData();
+    res.status(200).json(data);
+  } catch (err) {
+    console.error('Error fetching age data:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
 }
 
 module.exports = {
-    getInsuranceData,
-    getAllAgeData,
-}
+  getInsuranceData,
+  getAgeData
+};

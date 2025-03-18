@@ -4,7 +4,7 @@ const { Pool } = require("pg");
 const pool = new Pool({
   user: process.env.DB_USER,
   host: "localhost",
-  database: "angular_insurance",
+  database: "insurance",
   password: process.env.DB_PASSWORD,
 });
 
@@ -12,6 +12,7 @@ async function getAllInsuranceData() {
   const result = await pool.query("SELECT * FROM insurance.insurance;");
   return result.rows;
 }
+
 
 async function getAllAgeData(){
   const result = await pool.query("SELECT age from insurance.insurance;");
