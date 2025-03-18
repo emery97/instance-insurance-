@@ -38,7 +38,7 @@ export class SexPieChartComponent {
         type: 'pie',
         events: {
           render: function (this: Highcharts.Chart) {
-            const series = this.series[0]; // Assuming a single series
+            const series = this.series[0]; 
             const points = series.points;
             points.forEach((point, index) => {
               const graphic = point.graphic;
@@ -67,7 +67,7 @@ export class SexPieChartComponent {
         headerFormat: '',
         pointFormat:
           '<span style="color:{point.color}">\u25cf</span> ' +
-          '{point.name}: <b>{point.percentage:.1f}%</b>'
+          '{point.name}: <b>{point.percentage:.1f}%</b>' // Format to 1 decimal place
       },
       accessibility: {
         point: {
@@ -81,7 +81,7 @@ export class SexPieChartComponent {
           cursor: 'pointer',
           dataLabels: {
             enabled: true,
-            format: '<b>{point.name}</b><br>{point.percentage}%',
+            format: '<b>{point.name}</b><br>{point.percentage:.1f}%',
             distance: 20
           }
         }
