@@ -1,4 +1,5 @@
-const { getAllInsuranceData, getAllAgeData,getSex, getBMI, getAgeBMIGender } = require('../models/insuranceModel');
+const { Console } = require('console');
+const { getAllInsuranceData, getAllAgeData,getSex, getBMI, getAgeBMIFemale } = require('../models/insuranceModel');
 
 async function getInsuranceData(req, res) {
     try {
@@ -41,12 +42,12 @@ async function getBMIData(req,res) {
   }
 }
 
-async function getAgeBMIGenderData(req,res) {
+async function getAgeBMIFemaleData(req,res) {
   try{
-    const data = await getAgeBMIGender();
+    const data = await getAgeBMIFemale();
     res.status(200).json(data);
   }catch (err) {
-    console.error('Error fetching Age BMI Gender data:', err);
+    console.error('Error fetching Age BMI Female data:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 }
@@ -56,5 +57,5 @@ module.exports = {
   getAgeData,
   getSexData,
   getBMIData,
-  getAgeBMIGenderData,
+  getAgeBMIFemaleData,
 };

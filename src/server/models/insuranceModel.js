@@ -67,12 +67,13 @@ async function getBMI() {
   return result.rows;
 }
 
-async function getAgeBMIGender() {
+async function getAgeBMIFemale() {
   const result = await pool.query(`
-    SELECT age, bmi, sex
-    FROM insurance.insurance
-    WHERE age IN (20, 30, 40, 50, 60, 70)
-    ORDER BY age;
+  SELECT age, bmi
+  FROM insurance.insurance
+  WHERE age IN (20, 30, 40, 50, 60, 70)
+    AND sex = 'female'
+  ORDER BY age;
     `);
   return result.rows;
 }
@@ -82,5 +83,5 @@ module.exports = {
   getAllAgeData,
   getSex,
   getBMI,
-  getAgeBMIGender,
+  getAgeBMIFemale,
 };
