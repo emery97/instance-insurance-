@@ -13,6 +13,7 @@ app.use('/insurance/data', insuranceController.getInsuranceData);
 app.use('/insurance/age', insuranceController.getAgeData); 
 app.use('/insurance/sex', insuranceController.getSexData);
 app.use('/insurance/bmi', insuranceController.getBMIData);
+app.use('/insurance/age/bmi/gender', insuranceController.getAgeBMIGenderData);
 
 // Start the server
 app.listen(port, () => {

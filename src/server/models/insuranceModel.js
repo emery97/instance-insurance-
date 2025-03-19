@@ -13,7 +13,6 @@ async function getAllInsuranceData() {
   return result.rows;
 }
 
-
 async function getAllAgeData() {
   const result = await pool.query(`
   SELECT 
@@ -46,7 +45,7 @@ async function getSex() {
   return result.rows;
 }
 
-async function getBMI(){
+async function getBMI() {
   const result = await pool.query(`
     SELECT 
       CASE
@@ -68,9 +67,20 @@ async function getBMI(){
   return result.rows;
 }
 
+async function getAgeBMIGender() {
+  const result = await pool.query(`
+    SELECT age, bmi, sex
+    FROM insurance.insurance
+    WHERE age IN (20, 30, 40, 50, 60, 70)
+    ORDER BY age;
+    `);
+  return result.rows;
+}
+
 module.exports = {
   getAllInsuranceData,
   getAllAgeData,
   getSex,
   getBMI,
+  getAgeBMIGender,
 };
