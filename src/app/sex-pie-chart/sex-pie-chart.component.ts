@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HighchartsChartModule } from 'highcharts-angular';
 import * as Highcharts from 'highcharts';
 import { SexService } from '../services/sex.service';
@@ -11,29 +11,34 @@ import { SexService } from '../services/sex.service';
   templateUrl: './sex-pie-chart.component.html',
   styleUrls: ['./sex-pie-chart.component.css']
 })
-export class SexPieChartComponent {
+export class SexPieChartComponent implements OnInit {
   Highcharts = Highcharts;
-  sexData: any = [];
   chartOptions: any = {};
 
-  constructor(private sexService: SexService) { }
+  constructor(private sexService: SexService) {}
 
   ngOnInit() {
     this.sexService.getSexData().subscribe(data => {
       const sexGroups = data.map((item: { sex: string }) => item.sex);
       const customerCounts = data.map((item: { count: number }) => item.count);
       this.setChartOptions(sexGroups, customerCounts);
+
+      // Trigger reflow after a slight delay
+      setTimeout(() => {
+        const chart = Highcharts.chart('sex-pie-chart', this.chartOptions); // Access chart by ID with options
+        if (chart) {
+          chart.reflow();
+        }
+      }, 100);
     });
   }
 
   setChartOptions(sexGroups: string[], customerCounts: number[]) {
     const chartData = sexGroups.map((group, index) => ({
       name: group,
-      y: Number(customerCounts[index]) // Convert to number using parseInt
+      y: Number(customerCounts[index])
     }));
-    
 
-    console.log("chart data: ",chartData);
     this.chartOptions = {
       chart: {
         type: 'pie',

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HighchartsChartModule } from 'highcharts-angular';
 import * as Highcharts from 'highcharts';
 import { AgeService } from '../services/age.service';
@@ -24,7 +24,14 @@ export class AgeBarChartComponent {
       const ageGroups = data.map((item: any) => item.age_group);
       const customerCounts = data.map((item: any) => Number(item.customers));
       this.setChartOptions(ageGroups, customerCounts);
-    });
+      
+      setTimeout(() => {
+        const chart = Highcharts.chart('age-bar-chart', this.chartOptions);
+        if (chart) {
+          chart.reflow();
+        }
+      }, 100);
+      });
   }
 
   setChartOptions(ageGroups: string[], customerCounts: number[]) {
