@@ -4,8 +4,10 @@ import {
   getSexData, 
   getBMIData, 
   getAgeBMIFemaleData, 
-  getAgeBMIMaleData 
+  getAgeBMIMaleData,
+  getAvgBmiData,
 } from './src/server/controllers/insuranceController';
+
 import express from 'express';
 import cors from 'cors';
 const app = express();
@@ -21,6 +23,7 @@ app.use('/insurance/sex', getSexData);
 app.use('/insurance/bmi', getBMIData);
 app.use('/insurance/female-bmi', getAgeBMIFemaleData);
 app.use('/insurance/male-bmi', getAgeBMIMaleData);
+app.use('/insurance/avg-bmi', getAvgBmiData);
 
 // Start the server
 app.listen(port, () => {

@@ -46,7 +46,7 @@ interface AvgBmiData {
   average_bmi: number;
   region: string;
 }
-
+ 
 async function getAllInsuranceData(): Promise<InsuranceData[]> {
   const result = await pool.query("SELECT * FROM insurance.insurance;");
   return result.rows;

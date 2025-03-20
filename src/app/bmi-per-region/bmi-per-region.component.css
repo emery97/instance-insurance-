@@ -1,0 +1,24 @@
+.bmi-per-region-container {
+    max-width: 100%; 
+    min-width: 400px;
+    height: 700px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 800px) {
+    .bmi-per-region-container {
+        max-width: 100%; /* Full width on smaller screens */
+    }
+}
+
+.bmi-per-region-container:hover {
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+}

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getAllInsuranceData, getAllAgeData, getSex, getBMI, getAgeBMIFemale, getAgeBMIMale } from '../models/insuranceModel';
+import { getAllInsuranceData, getAllAgeData, getSex, getBMI, getAgeBMIFemale, getAgeBMIMale, avgBmi } from '../models/insuranceModel';
 
 // Type for the response data (adjust based on the actual return type from the functions)
 type DataResponse = {
@@ -66,6 +66,16 @@ async function getAgeBMIMaleData(req: Request, res: Response): Promise<void> {
   }
 }
 
+async function getAvgBmiData(req: Request, res: Response): Promise<void> {
+  try {
+    const data: DataResponse = await avgBmi();
+    res.status(200).json(data);
+  } catch (err: any) {
+    console.error('Error fetching average BMI data:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+}
+
 export {
   getInsuranceData,
   getAgeData,
@@ -73,4 +83,5 @@ export {
   getBMIData,
   getAgeBMIFemaleData,
   getAgeBMIMaleData,
+  getAvgBmiData,
 };
