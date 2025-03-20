@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { AgeBarChartComponent } from '../age-bar-chart/age-bar-chart.component';
 import { AgeService } from '../services/age.service';
 import { SexPieChartComponent } from '../sex-pie-chart/sex-pie-chart.component';
-import { BmiDrillDownComponent } from '../bmi-drill-down/bmi-drill-down.component';
+import { BmiDrillDownComponent } from '../bmi-vs-age-scatter-plot/bmi-vs-age-scatter-plot.component';
 
 @Component({
   selector: 'app-dashboard',
