@@ -4,6 +4,7 @@ import { MaleBmiService } from '../services/male-bmi.service';
 import { HighchartsChartModule } from 'highcharts-angular';
 import * as Highcharts from 'highcharts';
 import { forkJoin } from 'rxjs';
+import { text } from 'stream/consumers';
 
 @Component({
   selector: 'app-bmi-vs-age-scatter-plot',
@@ -80,6 +81,9 @@ export class BmiDrillDownComponent {
       title: {
         text: 'BMI vs Age Scatter Plot'
       },
+      subtitle: {
+        text: 'To improve clarity and focus on the female data, we recommend temporarily disabling the display of male data points'
+      },
       xAxis: {
         title: { text: 'Age' },
         labels: { format: '{value} years' },
@@ -112,7 +116,7 @@ export class BmiDrillDownComponent {
           data: femaleAge.map((age, index) => [age, femaleBmi[index]]),
           marker: {
             symbol: 'circle', // Female points as circles
-            radius: 5
+            radius: 4
           },
         },
         {
