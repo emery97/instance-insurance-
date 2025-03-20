@@ -14,6 +14,7 @@ app.use('/insurance/age', insuranceController.getAgeData);
 app.use('/insurance/sex', insuranceController.getSexData);
 app.use('/insurance/bmi', insuranceController.getBMIData);
 app.use('/insurance/female-bmi', insuranceController.getAgeBMIFemaleData);
+app.use('/insurance/male-bmi', insuranceController.getAgeBMIMaleData);
 
 // Start the server
 app.listen(port, () => {

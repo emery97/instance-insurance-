@@ -1,16 +1,16 @@
 const { Console } = require('console');
-const { getAllInsuranceData, getAllAgeData,getSex, getBMI, getAgeBMIFemale } = require('../models/insuranceModel');
+const { getAllInsuranceData, getAllAgeData, getSex, getBMI, getAgeBMIFemale, getAgeBMIMale } = require('../models/insuranceModel');
 
 async function getInsuranceData(req, res) {
-    try {
-      const data = await getAllInsuranceData();
-      res.status(200).json(data);
-    } catch (err) {
-      console.error('Error fetching insurance data:', err);
-      res.status(500).json({ message: 'Server error', error: err.message });
-    }
+  try {
+    const data = await getAllInsuranceData();
+    res.status(200).json(data);
+  } catch (err) {
+    console.error('Error fetching insurance data:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
-  
+}
+
 
 async function getAgeData(req, res) {
   try {
@@ -22,35 +22,46 @@ async function getAgeData(req, res) {
   }
 }
 
-async function getSexData(req,res){
-  try{
+async function getSexData(req, res) {
+  try {
     const data = await getSex();
     res.status(200).json(data);
-  }catch (err) {
+  } catch (err) {
     console.error('Error fetching sex data:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 }
 
-async function getBMIData(req,res) {
-  try{
+async function getBMIData(req, res) {
+  try {
     const data = await getBMI();
     res.status(200).json(data);
-  }catch (err) {
+  } catch (err) {
     console.error('Error fetching BMI data:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 }
 
-async function getAgeBMIFemaleData(req,res) {
-  try{
+async function getAgeBMIFemaleData(req, res) {
+  try {
     const data = await getAgeBMIFemale();
     res.status(200).json(data);
-  }catch (err) {
+  } catch (err) {
     console.error('Error fetching Age BMI Female data:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 }
+
+async function getAgeBMIMaleData(req, res) {
+  try {
+    const data = await getAgeBMIFemale();
+    res.status(200).json(data);
+  } catch (err) {
+    console.error('Error fetching Age BMI Female data:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+}
+
 
 module.exports = {
   getInsuranceData,
@@ -58,4 +69,5 @@ module.exports = {
   getSexData,
   getBMIData,
   getAgeBMIFemaleData,
+  getAgeBMIMaleData,
 };
