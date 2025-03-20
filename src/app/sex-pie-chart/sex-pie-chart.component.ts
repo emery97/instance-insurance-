@@ -67,7 +67,7 @@ export class SexPieChartComponent implements OnInit {
         }
       },
       title: {
-        text: 'Sex Pie Chart'
+        text: 'Gender Distribution Pie Chart'
       },
       tooltip: {
         headerFormat: '',
