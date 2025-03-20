@@ -27,25 +27,27 @@ export class BmiDrillDownComponent {
   ) {}
 
   ngOnInit() {
-    this.femaleBmiService.getFemaleBmiData().subscribe(femaleData => {
-      this.maleBmiService.getMaleBmiData().subscribe(maleData => {
-        const femaleAge = femaleData.map((item: any) => Number(item.age));
-        const femaleBmi = femaleData.map((item: any) => Number(item.bmi));
-
-        const maleAge = maleData.map((item: any) => Number(item.age));
-        const maleBmi = maleData.map((item: any) => Number(item.bmi));
-        
-        this.setChartOptions(femaleAge, femaleBmi, maleAge, maleBmi);
-
-        setTimeout(() => {
-          const chart = Highcharts.chart('bmi-age-scatter-plot', this.chartOptions);
-          if (chart) {
-            chart.redraw();
-          }
-        }, 100);
-      });
+    forkJoin({
+      femaleData: this.femaleBmiService.getFemaleBmiData(),
+      maleData: this.maleBmiService.getMaleBmiData()
+    }).subscribe(({ femaleData, maleData }) => {
+      const femaleAge = femaleData.map((item: any) => Number(item.age));
+      const femaleBmi = femaleData.map((item: any) => Number(item.bmi));
+  
+      const maleAge = maleData.map((item: any) => Number(item.age));
+      const maleBmi = maleData.map((item: any) => Number(item.bmi));
+  
+      this.setChartOptions(femaleAge, femaleBmi, maleAge, maleBmi);
+  
+      setTimeout(() => {
+        const chart = Highcharts.chart('bmi-age-scatter-plot', this.chartOptions);
+        if (chart) {
+          chart.reflow();
+        }
+      }, 100);
     });
   }
+  
 
   calculateBestFitLine(age: number[], bmi: number[]) {
     const n = age.length;
@@ -107,7 +109,11 @@ export class BmiDrillDownComponent {
         {
           name: 'Female BMI vs Age',
           color: '#FF5376',
-          data: femaleAge.map((age, index) => [age, femaleBmi[index]])
+          data: femaleAge.map((age, index) => [age, femaleBmi[index]]),
+          marker: {
+            symbol: 'circle', // Female points as circles
+            radius: 5
+          },
         },
         {
           name: 'Female Line of Best Fit',
@@ -116,12 +122,16 @@ export class BmiDrillDownComponent {
           data: femaleTrendLine,
           marker: { enabled: false },
           enableMouseTracking: false,
-          dashStyle: 'Dash'
+          dashStyle: 'Solid'
         },
         {
           name: 'Male BMI vs Age',
           color: '#7DE2D1',
-          data: maleAge.map((age, index) => [age, maleBmi[index]])
+          data: maleAge.map((age, index) => [age, maleBmi[index]]),
+          marker: {
+            symbol: 'triangle', // Male points as triangles
+            radius: 4
+          },
         },
         {
           name: 'Male Line of Best Fit',
