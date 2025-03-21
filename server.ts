@@ -14,7 +14,10 @@ const app = express();
 const port = 3000;
 
 // Enable CORS for your Angular app
-app.use(cors());
+// Enable CORS for requests from localhost:4200
+app.use(cors({
+  origin: 'http://localhost:4200'
+}));
 app.use(express.json());
 
 app.use('/insurance/data', getInsuranceData);
