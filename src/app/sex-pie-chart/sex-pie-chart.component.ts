@@ -42,29 +42,6 @@ export class SexPieChartComponent implements OnInit {
     this.chartOptions = {
       chart: {
         type: 'pie',
-        events: {
-          render: function (this: Highcharts.Chart) {
-            const series = this.series[0]; 
-            const points = series.points;
-            points.forEach((point, index) => {
-              const graphic = point.graphic;
-              if (graphic) {
-                // Apply custom animation for each slice
-                graphic.attr({
-                  opacity: 0, // Initially hide the slice
-                  transform: 'scale(0.1)' // Start with a smaller scale
-                }).animate({
-                  opacity: 1, // Fade in
-                  transform: 'scale(1)' // Scale back to normal size
-                }, {
-                  duration: 1000, // Duration of the animation for each slice
-                  easing: 'easeOutBounce', // You can change easing method
-                  // Delay to stagger the animation
-                });
-              }
-            });
-          }
-        }
       },
       title: {
         text: 'Gender Distribution Pie Chart'
