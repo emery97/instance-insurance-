@@ -1,14 +1,16 @@
+
 import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
 import { legendColor } from 'd3-svg-legend';
 import * as topojson from 'topojson-client';
 
 @Component({
-  selector: 'app-bmi-per-region',
-  templateUrl: './bmi-per-region.component.html',
-  styleUrls: ['./bmi-per-region.component.css']
+  selector: 'app-sg-bmi-per-region',
+  imports: [],
+  templateUrl: './sg-bmi-per-region.component.html',
+  styleUrl: './sg-bmi-per-region.component.css'
 })
-export class BmiPerRegionComponent implements OnInit {
+export class SgBmiPerRegionComponent implements OnInit {
 
   ngOnInit(): void {
     const width = 975, height = 610;
@@ -47,7 +49,7 @@ export class BmiPerRegionComponent implements OnInit {
       const processedData = (topojson.feature(us, us.objects.states) as any).features;
 
       // 6. Create the SVG element to render the map
-      const svg = d3.select("#map")
+      const svg = d3.select("#sg-map")
         .append("svg")
         .attr("width", width)
         .attr("height", height)

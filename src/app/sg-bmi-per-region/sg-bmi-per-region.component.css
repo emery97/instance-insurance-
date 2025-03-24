@@ -1,4 +1,4 @@
-.container {
+.sg-container {
     max-width: 100%;
     min-width: 400px;
     height: 700px;
@@ -7,15 +7,17 @@
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
     display: flex;
-    flex-direction: column; /* Ensures horizontal layout */
+    flex-direction: column;
+    /* Ensures horizontal layout */
     align-items: center;
     justify-content: center;
-    position: relative; /* Makes sure everything inside is relative to this container */
+    position: relative;
+    /* Makes sure everything inside is relative to this container */
     transition: all 0.3s ease-in-out;
 }
 
 /* Overall chart container */
-#chart {
+#sg-chart {
     display: flex;
     background-color: white;
     border: 1px solid #e0e0e0;
@@ -26,17 +28,20 @@
     max-width: 1200px;
     padding: 30px;
     justify-content: space-between;
-    position: relative; /* Ensure it is positioned relative to its parent */
-    width: 100%; /* Ensures it stretches across the available space */
+    position: relative;
+    /* Ensure it is positioned relative to its parent */
+    width: 100%;
+    /* Ensures it stretches across the available space */
 }
 
 #chart:hover {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Map container */
-#map {
-    width: 100%; /* Let the map fill up its parent */
+/* sg-map container */
+#sg-map {
+    width: 100%;
+    /* Let the sg-sg-map fill up its parent */
     height: auto;
     position: relative;
 }
@@ -49,7 +54,8 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    position: relative; /* Ensure it’s inside the chart relative container */
+    position: relative;
+    /* Ensure it’s inside the chart relative container */
 }
 
 /* Legend title */
@@ -61,28 +67,31 @@
 
 /* Mobile responsiveness */
 @media (max-width: 800px) {
-    .bmi-per-region-container {
+    .sg-container {
         max-width: 100%;
         /* Full width on smaller screens */
-        height: auto; /* Adjusts height to fit content */
+        height: auto;
+        /* Adjusts height to fit content */
     }
 
-    #chart {
-        flex-direction: column; /* Stack elements vertically for smaller screens */
-        padding: 15px; /* Adjusts padding for smaller screens */
+    #sg-chart {
+        flex-direction: column;
+        /* Stack elements vertically for smaller screens */
+        padding: 15px;
+        /* Adjusts padding for smaller screens */
     }
 
-    #map {
-        max-width: 100%; /* Ensures map stretches to full width on mobile */
-        margin-bottom: 20px; /* Adds spacing below map on mobile */
+    #sg-map {
+        max-width: 100%;
+        /* Ensures sg-map stretches to full width on mobile */
+        margin-bottom: 20px;
+        /* Adds spacing below sg-map on mobile */
     }
 
     #legend {
-        width: 100%; /* Makes legend take full width on smaller screens */
-        margin-top: 10px; /* Adds spacing on top of the legend */
+        width: 100%;
+        /* Makes legend take full width on smaller screens */
+        margin-top: 10px;
+        /* Adds spacing on top of the legend */
     }
-}
-
-.bmi-per-region-container:hover {
-    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
 }
