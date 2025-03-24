@@ -1,14 +1,13 @@
-
 import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
 import { legendColor } from 'd3-svg-legend';
 import * as topojson from 'topojson-client';
+import { interpolateOrRd } from 'd3-scale-chromatic';
 
 @Component({
   selector: 'app-sg-bmi-per-region',
-  imports: [],
   templateUrl: './sg-bmi-per-region.component.html',
-  styleUrl: './sg-bmi-per-region.component.css'
+  styleUrls: ['./sg-bmi-per-region.component.css']
 })
 export class SgBmiPerRegionComponent implements OnInit {
 
@@ -17,18 +16,20 @@ export class SgBmiPerRegionComponent implements OnInit {
 
     // Load CSV and JSON data
     Promise.all([
-      d3.csv("unemployment201907.csv"),
-      d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/counties-albers-10m.json")
-    ]).then(([unemploymentData, us]: [any, any]) => {
+      d3.csv("unemployment201907.csv"), // You might replace this with your own data source
+      d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/counties-albers-10m.json"),
+      d3.json("http://localhost:3000/insurance/avg-bmi") // Replace with real BMI data endpoint
+    ]).then(([unemploymentData, sgGeoData, avgBmi]: [any, any, any]) => {
       console.log("Unemployment Data:", unemploymentData);
-      console.log("TopoJSON Data:", us);
+      console.log("GeoJSON Data for Singapore:", sgGeoData);
+      console.log("Average BMI Data:", avgBmi);
 
-      // 1. Build a map from state name -> state ID
+      // 1. Build a map from region name -> region ID (Update to reflect Singapore's region names)
       const nameToId = new Map(
-        us.objects.states.geometries.map((d: { properties: { name: any; }; id: any; }) => [d.properties.name, d.id])
+        sgGeoData.objects.states.geometries.map((d: { properties: { name: any; }; id: any; }) => [d.properties.name, d.id])
       );
 
-      // 2. Build a map from state ID -> unemployment rate
+      // 2. Build a map from region ID -> BMI data
       const idToRate = new Map();
       for (const row of unemploymentData) {
         const stateId = nameToId.get(row['name']);
@@ -37,16 +38,15 @@ export class SgBmiPerRegionComponent implements OnInit {
         }
       }
 
-      console.log("Value Map:", idToRate);
 
-      // 3. Set up the color scale (quantized from 1% to 10%)
-      const color = d3.scaleQuantize([1, 10], d3.schemeBlues[9]);
-
+      console.log("BMI Value Map:", idToRate);
+      const color = d3.scaleSequential(d3.schemeGreens[9]);  // The range of your data
+  
       // 4. Set up the geographic path generator
       const path = d3.geoPath();
 
-      // 5. Convert TopoJSON to GeoJSON features
-      const processedData = (topojson.feature(us, us.objects.states) as any).features;
+      // 5. Convert TopoJSON to GeoJSON features (if needed)
+      const processedData = (topojson.feature(sgGeoData, sgGeoData.objects.states) as any).features;
 
       // 6. Create the SVG element to render the map
       const svg = d3.select("#sg-map")
@@ -57,8 +57,7 @@ export class SgBmiPerRegionComponent implements OnInit {
         .style("max-width", "100%")
         .style("height", "auto");
 
-
-      // 9. Append the map paths (states) and apply color based on unemployment rate
+      // 7. Append the map paths (regions) and apply color based on BMI data
       svg.append("g")
         .selectAll("path")
         .data(processedData)
@@ -66,7 +65,7 @@ export class SgBmiPerRegionComponent implements OnInit {
         .attr("d", path as unknown as string)
         .attr("fill", (d: any) => {
           const rate = idToRate.get(d.id);
-          return rate == null ? "#eee" : color(rate);  // Use color scale to fill based on unemployment rate
+          return rate == null ? "#eee" : color(rate); // Use color scale to fill based on BMI
         })
         .attr("stroke", "#fff")
         .attr("stroke-width", 0.5)
@@ -78,11 +77,11 @@ export class SgBmiPerRegionComponent implements OnInit {
             : `${d.properties.name}\n${rate}%`;
         });
 
-      // 10. Draw internal state borders
+      // 8. Draw internal region borders
       svg.append("path")
-        .datum(topojson.mesh(us, us.objects.states, (a: any, b: any) => a !== b))
+        .datum(topojson.mesh(sgGeoData, sgGeoData.objects.states, (a: any, b: any) => a !== b))
         .attr("fill", "none")
-        .attr("stroke", "white")  // Set border color to white for visibility
+        .attr("stroke", "white")
         .attr("stroke-linejoin", "round")
         .attr("d", path);
 
