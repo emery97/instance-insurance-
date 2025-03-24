@@ -1,8 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
-import { legendColor } from 'd3-svg-legend';
-import * as topojson from 'topojson-client';
-import { interpolateOrRd } from 'd3-scale-chromatic';
 
 @Component({
   selector: 'app-sg-bmi-per-region',
@@ -14,30 +11,31 @@ export class SgBmiPerRegionComponent implements OnInit {
   ngOnInit(): void {
     const width = 975, height = 610;
 
-    // Load CSV and JSON data
+    // Load the Singapore GeoJSON and average BMI data
     Promise.all([
-      d3.json("sg-map.json"), // You might replace this with your own data source
-      d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/counties-albers-10m.json"),
-      d3.json("http://localhost:3000/insurance/avg-bmi") // Replace with real BMI data endpoint
-    ]).then(([GeoJsonSg, us, avgBmi]: [any, any, any]) => {
-      console.log("SG map:", GeoJsonSg);
-      console.log("GeoJSON Data for Singapore:", us);
+      d3.json("sg-map.json"),  // Your Singapore GeoJSON file
+      d3.json("http://localhost:3000/insurance/avg-bmi")  // Average BMI API endpoint
+    ]).then(([GeoJsonSg, avgBmi]: [any, any]) => {
+      console.log("SG map GeoJSON:", GeoJsonSg);
       console.log("Average BMI Data:", avgBmi);
 
-      // 1. Build a map from region name -> region ID (Update to reflect Singapore's region names)
-      const nameToId = new Map(
-        us.objects.states.geometries.map((d: { properties: { name: any; }; id: any; }) => [d.properties.name, d.id])
-      );
+      // Create a map of region names to average BMI values (normalize to lowercase)
+      const bmiMap = new Map(avgBmi.map((d: any) => [d.region.toLowerCase(), parseFloat(d.average_bmi)])); 
 
-      const color = d3.scaleSequential(() => "black");
-  
-      // 4. Set up the geographic path generator
-      const path = d3.geoPath();
+      // Add BMI data as properties to the GeoJSON features
+      GeoJsonSg.features.forEach((feature: any) => {
+        let regionName = feature.properties.name.toLowerCase().replace(/\s+/g, '');;
+        feature.properties.bmi = bmiMap.get(regionName) || null; // Add BMI or null if not available
+      });
 
-      // 5. Convert TopoJSON to GeoJSON features (if needed)
-      const processedData = (topojson.feature(us, us.objects.states) as any).features;
+      // Define a color scale for BMI values (example with red color gradient)
+      const color = d3.scaleSequential(d3.interpolateBlues).domain([20, 50]); // Adjust domain as needed
 
-      // 6. Create the SVG element to render the map
+      // Create the path generator for projecting GeoJSON data onto SVG paths
+      const projection = d3.geoMercator().fitSize([width, height], GeoJsonSg);
+      const path = d3.geoPath().projection(projection);
+
+      // Append the SVG element to render the map
       const svg = d3.select("#sg-map")
         .append("svg")
         .attr("width", width)
@@ -46,24 +44,17 @@ export class SgBmiPerRegionComponent implements OnInit {
         .style("max-width", "100%")
         .style("height", "auto");
 
-      // 7. Append the map paths (regions) and apply color based on BMI data
+      // Draw the regions (polygons) with fill colors based on BMI values
       svg.append("g")
         .selectAll("path")
-        .data(processedData)
+        .data(GeoJsonSg.features)
         .join("path")
         .attr("d", path as unknown as string)
-        .attr("fill",color(0))
+        .attr("fill", (d: any) => color(d.properties.bmi || 20)) // Apply color scale based on BMI
         .attr("stroke", "#fff")
         .attr("stroke-width", 0.5)
         .append("title")
-
-      // 8. Draw internal region borders
-      svg.append("path")
-        .datum(topojson.mesh(us, us.objects.states, (a: any, b: any) => a !== b))
-        .attr("fill", "none")
-        .attr("stroke", "white")
-        .attr("stroke-linejoin", "round")
-        .attr("d", path);
+        .text((d: any) => `${d.properties.name}: BMI ${d.properties.bmi !== null ? d.properties.bmi : "N/A"}`);
 
       console.log("Map rendered successfully.");
     }).catch(error => {

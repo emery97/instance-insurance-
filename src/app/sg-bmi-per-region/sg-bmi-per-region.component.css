@@ -1,3 +1,11 @@
+h1 {
+    font-size: 18px;
+    color: #333333;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
 .sg-container {
     max-width: 100%;
     min-width: 400px;
