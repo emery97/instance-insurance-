@@ -4,6 +4,7 @@ import { AgeService } from '../services/age.service';
 import { SexPieChartComponent } from '../sex-pie-chart/sex-pie-chart.component';
 import { BmiDrillDownComponent } from '../bmi-vs-age-scatter-plot/bmi-vs-age-scatter-plot.component';
 import { SgBmiPerRegionComponent } from '../sg-bmi-per-region/sg-bmi-per-region.component';
+import { BarChartComponent } from '../bar-chart/bar-chart.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,6 +13,7 @@ import { SgBmiPerRegionComponent } from '../sg-bmi-per-region/sg-bmi-per-region.
     SexPieChartComponent,
     BmiDrillDownComponent,
     SgBmiPerRegionComponent,
+    BarChartComponent,
   ],
   providers: [AgeService],
   templateUrl: './dashboard.component.html',

@@ -1,0 +1,75 @@
+.bar-chart-container {
+    max-width: 100%;
+    /* Keeps it half-width on large screens */
+    min-width: 500px;
+    height: 450px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease-in-out;
+    flex-direction: column;
+}
+
+.y-axis-label{
+    margin-right: 30px;
+}
+
+.tooltip {
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    background: white;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    color: #333;
+    display: block;
+    font-size: 12px;
+    padding: 8px 10px;
+    position: absolute;
+    pointer-events: none;
+    z-index: 100;
+    max-width: 200px;
+    visibility: hidden;
+    border: 1px solid #ddd;
+}
+
+.tooltip-age {
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+.tooltip-value {
+    display: flex;
+    align-items: center;
+}
+
+.tooltip-dot {
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    background-color: #36a2eb;
+    margin-right: 5px;
+    display: inline-block;
+}
+
+rect:hover {
+    fill: #2987c2;
+    cursor: pointer;
+    transition: fill 0.2s;
+}
+
+
+/* Mobile responsiveness */
+@media (max-width: 800px) {
+    .bar-chart-container {
+        max-width: 100%;
+        /* Full width on smaller screens */
+    }
+}
+
+
+.bar-chart-container:hover {
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+}
