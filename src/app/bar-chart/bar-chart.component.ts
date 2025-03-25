@@ -10,9 +10,9 @@ import * as d3 from 'd3';
 export class BarChartComponent implements OnInit {
 
   ngOnInit(): void {
-    const margin = { top: 20, right: 20, bottom: 40, left: 40 };
-    const width = 600 - margin.left - margin.right;
-    const height = 500 - margin.top - margin.bottom;
+    const margin = { top: 5, right: 20, bottom: 60, left: 60 };
+    const width = 400 - margin.left - margin.right;
+    const height = 300 - margin.top - margin.bottom;
 
     Promise.all([
       d3.json("http://localhost:3000/insurance/age")
@@ -41,7 +41,10 @@ export class BarChartComponent implements OnInit {
         .range([height, 0]);
 
       const xAxis = d3.axisBottom(xScale);
-      const yAxis = d3.axisLeft(yScale);
+
+      const yAxis = d3.axisLeft(yScale)
+      .tickFormat(d3.format('d')) 
+      .ticks(5); 
 
       // Append X-axis to SVG
       svg.append('g')
@@ -52,7 +55,7 @@ export class BarChartComponent implements OnInit {
         .style("text-anchor", "end")
         .attr("transform", "rotate(-45)")
         .attr("dx", "-.8em")
-        .attr("dy", ".15em");
+        .attr("dy", "1em");
 
       // Append Y-axis to SVG
       svg.append('g')
@@ -61,37 +64,45 @@ export class BarChartComponent implements OnInit {
 
       // Add X-axis label
       svg.append("text")
-        .attr("class", "x-axis-label")
-        .attr("x", width / 2 - 50)
-        .attr("y", height + margin.bottom - 10)
-        .style("text-anchor", "middle")
-        .text("Age Group");
+      .attr("class", "x-axis-label")
+      .attr("x", width / 2)
+      .attr("y", height + margin.bottom - 5)
+      .style("text-anchor", "middle")
+      .style("font-size", "13px")
+      .text("Age Group");
 
-      // Add Y-axis label
+      // Styling for Y-axis label
       svg.append("text")
         .attr("class", "y-axis-label")
         .attr("transform", "rotate(-90)")
         .attr("x", -height / 2)
-        .attr("y", -margin.left + 10)
+        .attr("y", -margin.left + 15)
         .style("text-anchor", "middle")
+        .style("font-size", "13px")
+        .style("font-family", "Arial, sans-serif")
         .text("Number of Customers");
 
-      // Create bars with tooltip functionality
+      // Create bars with 70% width and centered
       const tooltip = d3.select("#tooltip");
       svg.selectAll('.bar')
         .data(ageData)
         .enter().append('rect')
         .attr('class', 'bar')
-        .attr('x', (d: any) => xScale(d.age_group) as number)
+        // Calculate x position to center the 70% width bar
+        .attr('x', (d: any) => {
+          const bandWidth = xScale.bandwidth();
+          return (xScale(d.age_group) ?? 0) + (bandWidth * 0.15); // 15% offset from left
+        }) 
         .attr('y', (d: any) => yScale(d.customers || d.value))
-        .attr('width', xScale.bandwidth())
+        // Set width to 70% of bandwidth
+        .attr('width', (d: any) => xScale.bandwidth() * 0.7) 
         .attr('height', (d: any) => height - yScale(d.customers || d.value))
-        .attr('fill', 'steelblue')
+        .attr('fill', '#2CAFFE')
         .on("mouseover", (event, d: any) => {
           tooltip.style("visibility", "visible")
             .html(`Age Group: ${d.age_group}<br>Customers: ${d.customers || d.value}`)
-            .style("left", (event.pageX + 5) + "px") // Position tooltip
-            .style("top", (event.pageY - 28) + "px"); // Position tooltip
+            .style("left", (event.pageX + 5) + "px")
+            .style("top", (event.pageY - 28) + "px");
         })
         .on("mousemove", (event) => {
           tooltip.style("left", (event.pageX + 5) + "px")
@@ -102,5 +113,4 @@ export class BarChartComponent implements OnInit {
         });
     });
   }
-
 }

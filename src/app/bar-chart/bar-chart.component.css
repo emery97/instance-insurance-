@@ -1,3 +1,11 @@
+h1 {
+    font-size: 18px;
+    color: #333333;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
 .bar-chart-container {
     max-width: 100%;
     /* Keeps it half-width on large screens */
@@ -14,11 +22,8 @@
     flex-direction: column;
 }
 
-.y-axis-label{
-    margin-right: 30px;
-}
 
-.tooltip {
+#tooltip {
     font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     background: white;
     border-radius: 3px;
