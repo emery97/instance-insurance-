@@ -100,7 +100,7 @@ export class BarChartComponent implements OnInit {
         .attr('fill', '#2CAFFE')
         .on("mouseover", (event, d: any) => {
           tooltip.style("visibility", "visible")
-            .html(`Age Group: ${d.age_group}<br>Customers: ${d.customers || d.value}`)
+            .html(`Age Group: ${d.age_group}<br><strong>Customers: ${d.customers || d.value}</strong>`)
             .style("left", (event.pageX + 5) + "px")
             .style("top", (event.pageY - 28) + "px");
         })
