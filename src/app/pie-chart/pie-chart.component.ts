@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import * as d3 from 'd3';
+
 interface GenderData {
   sex: string;
   count: number;
@@ -20,7 +21,6 @@ export class PieChartComponent implements OnInit {
 
     d3.json<GenderData[]>("http://localhost:3000/insurance/sex")
       .then((genderData) => {
-        // Check if genderData is defined and has elements
         if (genderData && genderData.length > 0) {
           const total = d3.sum(genderData, d => d.count);
 
@@ -42,9 +42,12 @@ export class PieChartComponent implements OnInit {
             .innerRadius(0)
             .outerRadius(radius);
 
-
-          var arcOver = d3.arc<d3.PieArcDatum<GenderData>>()
+          const arcOver = d3.arc<d3.PieArcDatum<GenderData>>()
             .outerRadius(radius + 10);
+
+          const tooltip = d3.select("#pie-chart")
+            .append("div")
+            .attr("class", "tooltip");
 
           const slices = svg.selectAll('path')
             .data(pie(genderData))
@@ -54,17 +57,30 @@ export class PieChartComponent implements OnInit {
             .attr('stroke', '#fff')
             .style('stroke-width', '2px')
             .attr('d', arcGenerator)
-            .style('cursor', 'pointer');
+            .style('cursor', 'pointer')
+            // Add a data attribute to help with tracking
+            .attr('data-sex', d => d.data.sex);
 
-          const tooltip = d3.select("#pie-chart")
-            .append("div")
-            .attr("class", "tooltip");
-
+          // Separate event handlers
           slices
-            .on("mouseover", (event, d) => {
-              const datum = d as d3.PieArcDatum<GenderData>;
-              const sliceColor = d3.select(event.currentTarget).style("fill");
+            .on("mouseenter", function(event, d) {
+              // Reset all slices first
+              slices
+                .transition()
+                .duration(200)
+                .attr('d', arcGenerator)
+                .style("opacity", 0.3);
 
+              // Highlight the current slice
+              d3.select(this)
+                .transition()
+                .duration(100)
+                .attr('d', (d: any) => arcOver(d as d3.PieArcDatum<GenderData>))
+                .style("opacity", 1);
+
+              const sliceColor = d3.select(this).style("fill");
+              const datum = d as d3.PieArcDatum<GenderData>;
+          
               tooltip.html(`
                 <div class="tooltip-title">
                   <span style="color:${sliceColor}">&#8226;</span> 
@@ -75,37 +91,28 @@ export class PieChartComponent implements OnInit {
                   Percentage: ${(datum.data.count / total * 100).toFixed(1)}%
                 </div>
               `)
-                .style("left", `${event.pageX + 10}px`)
-                .style("top", `${event.pageY - 20}px`)
+              .style("left", `${event.pageX + 10}px`)
+              .style("top", `${event.pageY - 20}px`)
+              .transition()
+              .duration(200)
+              .style("opacity", 1);
+            })
+            .on("mouseleave", function() {
+              // Reset all slices when mouse leaves
+              slices
                 .transition()
                 .duration(200)
+                .attr('d', arcGenerator)
                 .style("opacity", 1);
+              
+              tooltip.transition()
+                .duration(200)
+                .style("opacity", 0);
             })
             .on("mousemove", (event) => {
               tooltip
                 .style("left", `${event.pageX + 10}px`)
                 .style("top", `${event.pageY - 20}px`);
-            })
-            .on("mouseout", () => {
-              tooltip.transition()
-                .duration(200)
-                .style("opacity", 0);
-            })
-            .on("mouseenter", (event, d) => {
-              d3.select(event.currentTarget)
-                .transition()
-                .duration(100)
-                .attr("d", (d: any) => arcOver(d as d3.PieArcDatum<GenderData>));
-            })
-            .on("mouseleave", function (d) {
-              d3.select(this)
-                .transition()
-                .attr("d", (d: any) => arcGenerator(d));
-
-              d3.selectAll(".pie-section")
-                .transition()
-                .duration(500)
-                .style("opacity", 1);
             });
         } else {
           console.error('No gender data available');
