@@ -75,7 +75,6 @@ export class PieChartComponent implements OnInit {
               d3.select(this)
                 .transition()
                 .duration(100)
-                .attr('d', (d: any) => arcOver(d as d3.PieArcDatum<GenderData>))
                 .style("opacity", 1);
 
               const sliceColor = d3.select(this).style("fill");
@@ -113,7 +112,14 @@ export class PieChartComponent implements OnInit {
               tooltip
                 .style("left", `${event.pageX + 10}px`)
                 .style("top", `${event.pageY - 20}px`);
-            });
+            })
+          .on("click", function(event, d) {
+            d3.select(this)
+            .transition()
+            .duration(200)
+            .attr('d', (d: any) => arcOver(d as d3.PieArcDatum<GenderData>)) // Same arcOver function to enlarge
+            .style("opacity", 1);
+          });
         } else {
           console.error('No gender data available');
         }
