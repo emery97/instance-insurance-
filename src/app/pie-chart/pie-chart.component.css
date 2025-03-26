@@ -24,7 +24,7 @@ h1 {
 
 .tooltip {
     position: absolute;
-    background: black;
+    background: white;
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 10px;

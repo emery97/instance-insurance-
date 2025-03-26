@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import * as d3 from 'd3';
 interface GenderData {
   sex: string;
@@ -9,12 +9,13 @@ interface GenderData {
   selector: 'app-pie-chart',
   templateUrl: './pie-chart.component.html',
   styleUrl: './pie-chart.component.css',
+  encapsulation: ViewEncapsulation.None
 })
 export class PieChartComponent implements OnInit {
   ngOnInit(): void {
     const margin = 10;
-    const width = 300;
-    const height = 200;
+    const width = 400;
+    const height = 300;
     const radius = Math.min(width, height) / 2 - margin;
 
     d3.json<GenderData[]>("http://localhost:3000/insurance/sex")
@@ -58,8 +59,13 @@ export class PieChartComponent implements OnInit {
           slices
             .on("mouseover", (event, d) => {
               const datum = d as d3.PieArcDatum<GenderData>;
+              const sliceColor = d3.select(event.currentTarget).style("fill");
+
               tooltip.html(`
-                <div class="tooltip-title"><strong>${datum.data.sex}:</strong></div>
+                <div class="tooltip-title">
+                  <span style="color:${sliceColor}">&#8226;</span> 
+                  <strong>${datum.data.sex}:</strong>
+                </div>
                 <div class="tooltip-content">
                   Count: ${datum.data.count}<br>
                   Percentage: ${(datum.data.count / total * 100).toFixed(1)}%
