@@ -63,51 +63,69 @@ export class PieChartComponent implements OnInit {
 
           // Separate event handlers
           slices
-            .on("mouseenter", function(event, d) {
-              // Reset all slices first
-              slices
-                .transition()
-                .duration(200)
-                .attr('d', arcGenerator)
-                .style("opacity", 0.3);
-
-              // Highlight the current slice
-              d3.select(this)
-                .transition()
-                .duration(100)
-                .style("opacity", 1);
-
-              const sliceColor = d3.select(this).style("fill");
-              const datum = d as d3.PieArcDatum<GenderData>;
-          
-              tooltip.html(`
-                <div class="tooltip-title">
-                  <span style="color:${sliceColor}">&#8226;</span> 
-                  <strong>${datum.data.sex}:</strong>
-                </div>
-                <div class="tooltip-content">
-                  Count: ${datum.data.count}<br>
-                  Percentage: ${(datum.data.count / total * 100).toFixed(1)}%
-                </div>
-              `)
-              .style("left", `${event.pageX + 10}px`)
-              .style("top", `${event.pageY - 20}px`)
+          .on("mouseenter", function(event, d) {
+            // Reset all slices first
+            slices
               .transition()
               .duration(200)
+              .attr('d', arcGenerator)
+              .style("opacity", 0.3);
+        
+            // Highlight the current slice
+            d3.select(this)
+              .transition()
+              .duration(100)
               .style("opacity", 1);
-            })
-            .on("mouseleave", function() {
-              // Reset all slices when mouse leaves
-              slices
-                .transition()
-                .duration(200)
-                .attr('d', arcGenerator)
-                .style("opacity", 1);
-              
-              tooltip.transition()
-                .duration(200)
-                .style("opacity", 0);
-            })
+        
+            const sliceColor = d3.select(this).style("fill");
+            const datum = d as d3.PieArcDatum<GenderData>;
+        
+            // Create the arc around the slice
+            const highlightArc = d3.arc()
+              .innerRadius(2)  // Set to the same inner radius as the slice
+              .outerRadius(radius + 10);  // Slightly larger outer radius for the highlighted arc
+        
+            // Append the arc around the slice
+            d3.select(this.parentNode as Element)
+              .append("path")
+              .attr("class", "highlight-arc")
+              .attr("d", highlightArc(d as unknown as d3.DefaultArcObject))
+              .style("fill", sliceColor)
+              .style("opacity", 0.3)
+              .style("pointer-events", "none");  // Prevent interaction with the arc
+        
+            // Tooltip
+            tooltip.html(`
+              <div class="tooltip-title">
+                <span style="color:${sliceColor}">&#8226;</span> 
+                <strong>${datum.data.sex}:</strong>
+              </div>
+              <div class="tooltip-content">
+                Count: ${datum.data.count}<br>
+                Percentage: ${(datum.data.count / total * 100).toFixed(1)}%
+              </div>
+            `)
+            .style("left", `${event.pageX + 10}px`)
+            .style("top", `${event.pageY - 20}px`)
+            .transition()
+            .duration(200)
+            .style("opacity", 1);
+          })
+          .on("mouseleave", function() {
+            // Reset all slices when mouse leaves
+            slices
+              .transition()
+              .duration(200)
+              .attr('d', arcGenerator)
+              .style("opacity", 1);
+        
+            // Remove the highlight arc
+            d3.select(this.parentNode as Element).selectAll(".highlight-arc").remove();
+        
+            tooltip.transition()
+              .duration(200)
+              .style("opacity", 0);
+          })
             .on("mousemove", (event) => {
               tooltip
                 .style("left", `${event.pageX + 10}px`)
