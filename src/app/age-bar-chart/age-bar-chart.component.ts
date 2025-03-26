@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,OnDestroy } from '@angular/core';
 import { HighchartsChartModule } from 'highcharts-angular';
 import * as Highcharts from 'highcharts';
 import { AgeService } from '../services/age.service';
@@ -8,55 +8,60 @@ import { AgeService } from '../services/age.service';
   imports: [
     HighchartsChartModule,
   ],
+  standalone: true, 
   providers: [AgeService],
   templateUrl: './age-bar-chart.component.html',
   styleUrl: './age-bar-chart.component.css'
 })
-export class AgeBarChartComponent {
+
+export class AgeBarChartComponent implements OnInit, OnDestroy {
   Highcharts = Highcharts;
   ageData: any = [];
   chartOptions: any = {};
-  constructor(private ageService: AgeService) { }
+  chart: Highcharts.Chart | undefined;
+
+  constructor(private ageService: AgeService) {}
 
   ngOnInit() {
-    this.ageService.getAgeData().subscribe(data => {
-      // Mapping the age group and customer counts
+    this.ageService.getAgeData().subscribe((data) => {
       const ageGroups = data.map((item: any) => item.age_group);
       const customerCounts = data.map((item: any) => Number(item.customers));
       this.setChartOptions(ageGroups, customerCounts);
-      
-      setTimeout(() => {
-        const chart = Highcharts.chart('age-bar-chart', this.chartOptions);
-        if (chart) {
-          chart.reflow();
-        }
-      }, 100);
-      });
+
+      if (this.chartOptions) {
+        this.chart = Highcharts.chart('age-bar-chart', this.chartOptions);
+      }
+    });
   }
 
   setChartOptions(ageGroups: string[], customerCounts: number[]) {
     this.chartOptions = {
       chart: {
-        type: 'column',
+        type: 'column'
       },
       title: {
-        text: 'Age Bar Chart',
+        text: 'Age Bar Chart'
       },
       xAxis: {
-        categories: ageGroups,  // Age groups on the x-axis
+        categories: ageGroups
       },
       yAxis: {
+        min: 0,
         title: {
-          text: 'Number of Customers',
-        },
-        min: 0,  // Ensuring the y-axis starts from 0
-        tickInterval: 50,  // Adjust the interval if necessary
+          text: 'Number of Customers'
+        }
       },
       series: [{
-        name: 'Number of Customers',
-        data: customerCounts,  // The number of customers should populate the y-values
-      }],
+        name: 'Customers',
+        data: customerCounts
+      }]
     };
+  }
+
+  ngOnDestroy() {
+    if (this.chart) {
+      this.chart.destroy(); // Properly destroy the chart when the component is destroyed
+    }
   }
 
 }
