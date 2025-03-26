@@ -42,6 +42,10 @@ export class PieChartComponent implements OnInit {
             .innerRadius(0)
             .outerRadius(radius);
 
+
+          var arcOver = d3.arc<d3.PieArcDatum<GenderData>>()
+            .outerRadius(radius + 10);
+
           const slices = svg.selectAll('path')
             .data(pie(genderData))
             .enter()
@@ -86,6 +90,22 @@ export class PieChartComponent implements OnInit {
               tooltip.transition()
                 .duration(200)
                 .style("opacity", 0);
+            })
+            .on("mouseenter", (event, d) => {
+              d3.select(event.currentTarget)
+                .transition()
+                .duration(100)
+                .attr("d", (d: any) => arcOver(d as d3.PieArcDatum<GenderData>));
+            })
+            .on("mouseleave", function (d) {
+              d3.select(this)
+                .transition()
+                .attr("d", (d: any) => arcGenerator(d));
+
+              d3.selectAll(".pie-section")
+                .transition()
+                .duration(500)
+                .style("opacity", 1);
             });
         } else {
           console.error('No gender data available');
