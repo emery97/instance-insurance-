@@ -4,7 +4,6 @@ import { MaleBmiService } from '../services/male-bmi.service';
 import { HighchartsChartModule } from 'highcharts-angular';
 import * as Highcharts from 'highcharts';
 import { forkJoin } from 'rxjs';
-import { text } from 'stream/consumers';
 
 @Component({
   selector: 'app-bmi-vs-age-scatter-plot',

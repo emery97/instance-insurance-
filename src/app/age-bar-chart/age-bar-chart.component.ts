@@ -16,7 +16,6 @@ import { AgeService } from '../services/age.service';
 
 export class AgeBarChartComponent implements OnInit, OnDestroy {
   Highcharts = Highcharts;
-  ageData: any = [];
   chartOptions: any = {};
   chart: Highcharts.Chart | undefined;
 
@@ -27,12 +26,14 @@ export class AgeBarChartComponent implements OnInit, OnDestroy {
       const ageGroups = data.map((item: any) => item.age_group);
       const customerCounts = data.map((item: any) => Number(item.customers));
       this.setChartOptions(ageGroups, customerCounts);
-
-      if (this.chartOptions) {
+  
+      // Check if chartOptions is set before initializing the chart
+      if (this.chartOptions && Object.keys(this.chartOptions).length > 0) {
         this.chart = Highcharts.chart('age-bar-chart', this.chartOptions);
       }
     });
   }
+  
 
   setChartOptions(ageGroups: string[], customerCounts: number[]) {
     this.chartOptions = {

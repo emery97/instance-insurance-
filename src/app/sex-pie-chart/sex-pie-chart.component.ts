@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HighchartsChartModule } from 'highcharts-angular';
 import * as Highcharts from 'highcharts';
 import { SexService } from '../services/sex.service';
@@ -11,11 +11,13 @@ import { SexService } from '../services/sex.service';
   templateUrl: './sex-pie-chart.component.html',
   styleUrls: ['./sex-pie-chart.component.css']
 })
-export class SexPieChartComponent implements OnInit {
+export class SexPieChartComponent implements OnInit, OnDestroy {
   Highcharts = Highcharts;
   chartOptions: any = {};
 
-  constructor(private sexService: SexService) {}
+  chart: Highcharts.Chart | undefined;
+
+  constructor(private sexService: SexService) { }
 
   ngOnInit() {
     this.sexService.getSexData().subscribe(data => {
@@ -23,13 +25,10 @@ export class SexPieChartComponent implements OnInit {
       const customerCounts = data.map((item: { count: number }) => item.count);
       this.setChartOptions(sexGroups, customerCounts);
 
-      // Trigger reflow after a slight delay
-      setTimeout(() => {
-        const chart = Highcharts.chart('sex-pie-chart', this.chartOptions); // Access chart by ID with options
-        if (chart) {
-          chart.reflow();
-        }
-      }, 100);
+      // Check if chartOptions is set before initializing the chart
+      if (this.chartOptions && Object.keys(this.chartOptions).length > 0) {
+        this.chart = Highcharts.chart('sex-pie-chart', this.chartOptions);
+      }
     });
   }
 
@@ -69,12 +68,18 @@ export class SexPieChartComponent implements OnInit {
           }
         }
       },
-      
+
       series: [{
         enableMouseTracking: true,
         colorByPoint: true,
         data: chartData
       }]
     };
+  }
+
+  ngOnDestroy() {
+    if (this.chart) {
+      this.chart.destroy(); // Properly destroy the chart when the component is destroyed
+    }
   }
 }
