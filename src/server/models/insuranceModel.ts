@@ -46,7 +46,23 @@ interface AvgBmiData {
   average_bmi: number;
   region: string;
 }
- 
+
+interface insurancePremiumData {
+  premium: number;
+}
+
+interface insuranceInvestmentData {
+  investment: number;
+}
+
+interface insuranceContractLSData {
+  contractLS: number;
+}
+
+interface profitData {
+  profit: number;
+}
+
 async function getAllInsuranceData(): Promise<InsuranceData[]> {
   const result = await pool.query("SELECT * FROM insurance.insurance;");
   return result.rows;
@@ -138,6 +154,39 @@ async function avgBmi(): Promise<AvgBmiData[]> {
   return result.rows;
 }
 
+async function getAllInsurancePremium(): Promise<insurancePremiumData[]> {
+  const result = await pool.query(`
+    SELECT SUM(insurance_premiums) AS insurance_premiums FROM public.insurance_profits
+  `);
+  return result.rows;
+}
+
+async function getAllInsuranceInvestment(): Promise<insuranceInvestmentData[]> {
+  const result = await pool.query(`
+   SELECT SUM(investment_income) AS investment_income FROM public.insurance_profits
+  `);
+  return result.rows;
+}
+
+
+async function getAllInsuranceContractLS(): Promise<insuranceContractLSData[]> {
+  const result = await pool.query(`
+   SELECT SUM(contract_lump_sums) AS contract_lump_sum FROM public.insurance_profits
+  `);
+  return result.rows;
+}
+
+async function getInsuranceProfit(): Promise<profitData[]> {
+  const result = await pool.query(`
+   SELECT 
+    SUM(insurance_premiums + investment_income + contract_lump_sums) AS total_profit
+  FROM public.insurance_profits;
+
+  `);
+  return result.rows;
+}
+
+
 export {
   getAllInsuranceData,
   getAllAgeData,
@@ -146,4 +195,8 @@ export {
   getAgeBMIFemale,
   getAgeBMIMale,
   avgBmi,
+  getAllInsurancePremium,
+  getAllInsuranceInvestment,
+  getAllInsuranceContractLS,
+  getInsuranceProfit,
 };
