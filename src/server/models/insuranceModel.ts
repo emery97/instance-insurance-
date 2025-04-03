@@ -166,7 +166,7 @@ async function getSankeyInsuranceData(): Promise<SankeyData[]> {
       SUM(insurance_premiums) AS insurance_premiums,
       SUM(investment_income) AS investment_income,
       SUM(contract_lump_sums) AS contract_lump_sums,
-      SUM(insurance_premiums + investment_income + contract_lump_sums) AS total_profit
+      SUM(insurance_premiums + investment_income + contract_lump_sums) AS revenue
     FROM public.insurance_profits;
   `);
   
