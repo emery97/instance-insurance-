@@ -13,14 +13,13 @@ interface SankeyNode {
 }
 
 interface SankeyLink {
-  source: number | string;
-  target: number | string;
+  source: number | string | SankeyNode;
+  target: number | string | SankeyNode;
   value: number;
   // Computed property for link thickness:
   width?: number;
 }
 
-// Interfaces for the backend data conversion:
 interface BackendNode {
   node: number;
   name: string;
@@ -46,7 +45,7 @@ interface BackendLinksData {
   template: `<svg width="960" height="500"></svg>`,
   styles: [`
     svg {
-      border: 1px solid #ccc;
+      border: none;
     }
   `]
 })
@@ -78,8 +77,8 @@ export class SankeyComponent implements OnInit {
         const nodesData = this.convertDataToNodes(dataObject);
         console.log("Converted Nodes: ", nodesData);
 
-        // Create links based on node types
-        const linksData = this.convertDataToLinks(nodesData);
+        // Create links using the actual value from the backend data.
+        const linksData = this.convertDataToLinks(nodesData, dataObject);
         console.log("Converted Links: ", linksData);
 
         // Map backend nodes into the format expected by the Sankey layout
@@ -101,21 +100,53 @@ export class SankeyComponent implements OnInit {
           links: sankeyLinks.map(d => ({ ...d }))
         });
 
-        // Render links using the sankeyLinkHorizontal generator
-        this.svg.append("g")
+        // Render links using the sankeyLinkHorizontal generator with fade-in
+        const linkGroup = this.svg.append("g")
           .attr("fill", "none")
-          .attr("stroke", "#000")
-          .attr("stroke-opacity", 0.2)
-          .selectAll("path")
+          .attr("stroke", "#757575")  // Material Design gray tone for links
+          .attr("stroke-opacity", 0.2);
+
+        const linkPaths = linkGroup.selectAll("path")
           .data(graph.links)
           .enter().append("path")
+          .attr("class", "link")
           .attr("d", sankeyLinkHorizontal())
-          .style("stroke-width", (d: SankeyLink) => Math.max(1, d.width!));
+          .style("stroke-width", (d: SankeyLink) => Math.max(1, d.width!))
+          .attr("opacity", 0)
+          .transition()
+          .duration(1000)
+          .attr("opacity", 1)
+          .on("end", function(d) {
+            const pathEl = this as SVGPathElement;
+            const totalLength = pathEl.getTotalLength();
+            const midpoint = pathEl.getPointAtLength(totalLength / 2);
+            // Safely check if the parent node exists
+            const parentEl = pathEl.parentNode as Element | null;
+            if (parentEl) {
+              d3.select(parentEl)
+                .append("text")
+                .attr("x", midpoint.x)
+                .attr("y", midpoint.y)
+                .attr("dy", "0.35em")
+                .attr("text-anchor", "middle")
+                .text(d.value.toString())
+                .attr("fill", "#000")
+                .attr("opacity", 0)
+                .transition()
+                .duration(1000)
+                .attr("opacity", 1);
+            }
+          });
+          
 
-        // Create a color scale for nodes
-        const color = d3.scaleOrdinal<string, string>(d3.schemeCategory10);
+        // Create a Material Design–inspired color scale for nodes
+        const materialColors = [
+          "#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#AB47BC",
+          "#00ACC1", "#FF7043", "#9E9D24", "#5C6BC0", "#8D6E63"
+        ];
+        const color = d3.scaleOrdinal<string, string>(materialColors);
 
-        // Render nodes as rectangles
+        // Render nodes as rectangles with fade-in
         this.svg.append("g")
           .selectAll("rect")
           .data(graph.nodes)
@@ -125,9 +156,13 @@ export class SankeyComponent implements OnInit {
           .attr("height", (d: SankeyNode) => d.y1! - d.y0!)
           .attr("width", (d: SankeyNode) => d.x1! - d.x0!)
           .style("fill", (d: SankeyNode) => color(d.name))
-          .style("stroke", "#000");
+          .style("stroke", "#ffffff")  // White stroke for a clean Material look
+          .attr("opacity", 0)
+          .transition()
+          .duration(1000)
+          .attr("opacity", 1);
 
-        // Render node labels
+        // Render node labels with fade-in
         this.svg.append("g")
           .selectAll("text")
           .data(graph.nodes)
@@ -137,6 +172,10 @@ export class SankeyComponent implements OnInit {
           .attr("dy", "0.35em")
           .attr("text-anchor", "end")
           .text((d: SankeyNode) => d.name)
+          .attr("opacity", 0)
+          .transition()
+          .duration(1000)
+          .attr("opacity", 1)
           .filter((d: SankeyNode) => d.x0! < this.width / 2)
           .attr("x", (d: SankeyNode) => d.x1! + 6)
           .attr("text-anchor", "start");
@@ -146,7 +185,6 @@ export class SankeyComponent implements OnInit {
       });
   }
 
-  // Converts backend data (an object with keys) into an array of nodes.
   convertDataToNodes(data: Record<string, any>): BackendNodesData {
     if (!data || typeof data !== 'object') {
       console.error("Invalid data structure", data);
@@ -156,14 +194,12 @@ export class SankeyComponent implements OnInit {
     const nodes = keys.map((key, index) => ({
       node: index,
       name: key,
-      // Simple logic: if the key contains "revenue", we treat it as "total", otherwise as "inflow"
       type: key.toLowerCase().includes("revenue") ? "total" : "inflow"
     }));
     return { nodes };
   }
 
-  // Creates links by connecting each "inflow" node to all "total" nodes.
-  convertDataToLinks(data: BackendNodesData): BackendLinksData {
+  convertDataToLinks(data: BackendNodesData, rawData: Record<string, any>): BackendLinksData {
     const nodes = data.nodes;
     const inflows = nodes.filter(n => n.type === "inflow");
     const totals = nodes.filter(n => n.type === "total");
@@ -171,10 +207,11 @@ export class SankeyComponent implements OnInit {
     let links: BackendLink[] = [];
     inflows.forEach(inflow => {
       totals.forEach(total => {
+        const value = rawData[inflow.name];
         links.push({
           source: inflow.node,
           target: total.node,
-          value: 2 // Example value; adjust as needed.
+          value: value !== undefined ? value : 0
         });
       });
     });
