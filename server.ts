@@ -6,9 +6,7 @@ import {
   getAgeBMIFemaleData, 
   getAgeBMIMaleData,
   getAvgBmiData,
-  getInsurancePremiumData,
-  getInsuranceInvestmentData,
-  getInsuranceContractLSData,
+  getAllSankeyInsuranceData,
 } from './src/server/controllers/insuranceController';
 
 import express from 'express';
@@ -30,10 +28,7 @@ app.use('/insurance/bmi', getBMIData);
 app.use('/insurance/female-bmi', getAgeBMIFemaleData);
 app.use('/insurance/male-bmi', getAgeBMIMaleData);
 app.use('/insurance/avg-bmi', getAvgBmiData);
-app.use('/insurance/premium', getInsurancePremiumData);
-app.use('/insurance/investment', getInsuranceInvestmentData);
-app.use('/insurance/contract-lump-sum', getInsuranceContractLSData);
-app.use('/insurance/profit', getInsuranceContractLSData);
+app.use('/insurance/sankey', getAllSankeyInsuranceData);
 
 
 // Start the server

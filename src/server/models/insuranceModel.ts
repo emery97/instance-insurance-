@@ -62,6 +62,12 @@ interface insuranceContractLSData {
 interface profitData {
   profit: number;
 }
+interface SankeyData {
+  insurance_premiums: number;
+  investment_income: number;
+  contract_lump_sums: number;
+  total_profit: number;
+}
 
 async function getAllInsuranceData(): Promise<InsuranceData[]> {
   const result = await pool.query("SELECT * FROM insurance.insurance;");
@@ -154,35 +160,16 @@ async function avgBmi(): Promise<AvgBmiData[]> {
   return result.rows;
 }
 
-async function getAllInsurancePremium(): Promise<insurancePremiumData[]> {
+async function getSankeyInsuranceData(): Promise<SankeyData[]> {
   const result = await pool.query(`
-    SELECT SUM(insurance_premiums) AS insurance_premiums FROM public.insurance_profits
+    SELECT 
+      SUM(insurance_premiums) AS insurance_premiums,
+      SUM(investment_income) AS investment_income,
+      SUM(contract_lump_sums) AS contract_lump_sums,
+      SUM(insurance_premiums + investment_income + contract_lump_sums) AS total_profit
+    FROM public.insurance_profits;
   `);
-  return result.rows;
-}
-
-async function getAllInsuranceInvestment(): Promise<insuranceInvestmentData[]> {
-  const result = await pool.query(`
-   SELECT SUM(investment_income) AS investment_income FROM public.insurance_profits
-  `);
-  return result.rows;
-}
-
-
-async function getAllInsuranceContractLS(): Promise<insuranceContractLSData[]> {
-  const result = await pool.query(`
-   SELECT SUM(contract_lump_sums) AS contract_lump_sum FROM public.insurance_profits
-  `);
-  return result.rows;
-}
-
-async function getInsuranceProfit(): Promise<profitData[]> {
-  const result = await pool.query(`
-   SELECT 
-    SUM(insurance_premiums + investment_income + contract_lump_sums) AS total_profit
-  FROM public.insurance_profits;
-
-  `);
+  
   return result.rows;
 }
 
@@ -195,8 +182,5 @@ export {
   getAgeBMIFemale,
   getAgeBMIMale,
   avgBmi,
-  getAllInsurancePremium,
-  getAllInsuranceInvestment,
-  getAllInsuranceContractLS,
-  getInsuranceProfit,
+  getSankeyInsuranceData,
 };

@@ -7,10 +7,7 @@ import {
   getAgeBMIFemale, 
   getAgeBMIMale, 
   avgBmi, 
-  getAllInsurancePremium, 
-  getAllInsuranceInvestment,
-  getAllInsuranceContractLS, 
-  getInsuranceProfit,
+  getSankeyInsuranceData,
 } from '../models/insuranceModel';
 
 // Type for the response data (adjust based on the actual return type from the functions)
@@ -88,42 +85,13 @@ async function getAvgBmiData(req: Request, res: Response): Promise<void> {
   }
 }
 
-async function getInsurancePremiumData(req: Request, res: Response): Promise<void> {
-  try {
-    const data: DataResponse = await getAllInsurancePremium();
-    res.status(200).json(data);
-  } catch (err: any) {
-    console.error('Error fetching insurance premium data:', err);
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-}
 
-async function getInsuranceInvestmentData(req: Request, res: Response): Promise<void> {
+async function getAllSankeyInsuranceData(req: Request, res: Response): Promise<void> {
   try {
-    const data: DataResponse = await getAllInsuranceInvestment();
+    const data: DataResponse = await getSankeyInsuranceData();
     res.status(200).json(data);
   } catch (err: any) {
-    console.error('Error fetching insurance investment data:', err);
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-}
-
-async function getInsuranceContractLSData(req: Request, res: Response): Promise<void> {
-  try {
-    const data: DataResponse = await getAllInsuranceContractLS();
-    res.status(200).json(data);
-  } catch (err: any) {
-    console.error('Error fetching insurance contract lump sum data:', err);
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-}
-
-async function getInsuranceProfitData(req: Request, res: Response): Promise<void> {
-  try {
-    const data: DataResponse = await getInsuranceProfit();
-    res.status(200).json(data);
-  } catch (err: any) {
-    console.error('Error fetching insurance profit data:', err);
+    console.error('Error fetching sankey insurance data:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 }
@@ -136,8 +104,5 @@ export {
   getAgeBMIFemaleData,
   getAgeBMIMaleData,
   getAvgBmiData,
-  getInsurancePremiumData,
-  getInsuranceInvestmentData,
-  getInsuranceContractLSData,
-  getInsuranceProfitData,
+  getAllSankeyInsuranceData,
 };
