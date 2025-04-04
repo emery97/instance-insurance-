@@ -108,7 +108,15 @@ export class SankeyComponent implements OnInit {
           .attr("stroke", "#757575")  // Material Design gray tone for links
           .attr("stroke-opacity", 0.2);
 
-        const linkPaths = linkGroup.selectAll("path")
+        const graphLinksWithPercentages = this.computeLinkPercentages(
+          linksData.links.map(link => ({
+            source: typeof link.source === 'number' ? link.source : 0,
+            target: typeof link.target === 'number' ? link.target : 0,
+            value: link.value.toString()
+          }))
+        );
+        console.log("Graph Links with Percentages: ", graphLinksWithPercentages);
+        linkGroup.selectAll("path")
           .data(graph.links)
           .enter().append("path")
           .attr("class", "link")
@@ -125,13 +133,26 @@ export class SankeyComponent implements OnInit {
             // Safely check if the parent node exists
             const parentEl = pathEl.parentNode as Element | null;
             if (parentEl) {
+              const sourceIndex = typeof d.source === 'object' && d.source !== null && 'index' in d.source
+              ? (d.source as any).index
+              : d.source;
+            
+            const targetIndex = typeof d.target === 'object' && d.target !== null && 'index' in d.target
+              ? (d.target as any).index
+              : d.target;
+            
+            const percentage = graphLinksWithPercentages.find((link) => {
+              return link.source === sourceIndex && link.target === targetIndex;
+            })?.percentageFromSource || '0%';
               d3.select(parentEl)
                 .append("text")
                 .attr("x", midpoint.x)
                 .attr("y", midpoint.y)
                 .attr("dy", "0.35em")
                 .attr("text-anchor", "middle")
-                .text(self.formatNumber(d.value))
+                .text(
+                  `${self.formatNumber(d.value)} (${percentage})`
+                )
                 .attr("fill", "#000")
                 .attr("opacity", 0)
                 .transition()
@@ -228,6 +249,28 @@ export class SankeyComponent implements OnInit {
     }
     return value.toString();
   }
-  
+
+  computeLinkPercentages(links: { source: number, target: number, value: string }[]) {
+    const targetTotals: { [key: number]: number } = {};
+    links.forEach(link => {
+      const target = link.target;
+      const value = parseFloat(link.value);
+      if (!targetTotals[target]) {
+        targetTotals[target] = 0;
+      }
+      targetTotals[target] += value;
+    });
+    return links.map(link => {
+      const value = parseFloat(link.value);
+      const total = targetTotals[link.target];
+      const percentage = total ? (value / total) * 100 : 0;
+      return {
+        ...link,
+        value: value,
+        percentageFromSource: percentage.toFixed(2) + '%'
+      };
+    });
+  }
+
 
 }
