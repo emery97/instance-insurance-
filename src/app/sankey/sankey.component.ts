@@ -55,6 +55,8 @@ export class SankeyComponent implements OnInit {
   private width: number = 960;
   private height: number = 500;
   private animationDuration: number = 1000;
+  // Define a component-level color scale that will be set after merging nodes.
+  private color!: d3.ScaleOrdinal<string, string>;
 
   ngOnInit(): void {
     this.svg = d3.select<SVGSVGElement, unknown>('svg');
@@ -99,6 +101,15 @@ export class SankeyComponent implements OnInit {
       mergedNodes.forEach((node, index) => {
         node.node = index;
       });
+
+      // Create a common color scale using a preset range and the merged node names.
+      const materialColors: string[] = [
+        "#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#AB47BC",
+        "#00ACC1", "#FF7043", "#9E9D24", "#5C6BC0", "#8D6E63"
+      ];
+      this.color = d3.scaleOrdinal<string, string>()
+        .domain(mergedNodes.map(n => n.name))
+        .range(materialColors);
 
       // Function to update links using new indices based on node names.
       const updateLinks = (
@@ -187,11 +198,8 @@ export class SankeyComponent implements OnInit {
     graph: SankeyGraph<SankeyNode, SankeyLink>,
     graphLinksWithPercentages: { source: number; target: number; value: number; percentageFromSource: string }[]
   ): void {
-    const materialColors: string[] = [
-      "#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#AB47BC",
-      "#00ACC1", "#FF7043", "#9E9D24", "#5C6BC0", "#8D6E63"
-    ];
-    const color = d3.scaleOrdinal<string, string>(materialColors);
+    // Use the common color scale (this.color) defined earlier.
+    const defs = this.svg.append("defs");
 
     const linkGroup = this.svg.append("g")
       .attr("fill", "none")
@@ -203,11 +211,44 @@ export class SankeyComponent implements OnInit {
       .attr("class", "link")
       .attr("d", sankeyLinkHorizontal())
       .style("stroke-width", (d: SankeyLink) => Math.max(1, d.width!))
-      .style("stroke", (d: SankeyLink) => {
-        const source = typeof d.source === 'object' ? d.source : null;
-        return source && 'name' in source
-          ? color((source as SankeyNode).name)
-          : "#757575";
+      .style("stroke", (d: SankeyLink, i: number) => {
+        const source = typeof d.source === 'object' ? d.source as SankeyNode : null;
+        const target = typeof d.target === 'object' ? d.target as SankeyNode : null;
+        // Fallback color in case source/target not available.
+        const sourceColor = source ? this.color(source.name) : "#757575";
+        const targetColor = target ? this.color(target.name) : "#757575";
+
+        // Create a unique id for the gradient.
+        const gradientID = `gradient${i}`;
+        const gradient = defs.append("linearGradient")
+          .attr("id", gradientID)
+          .attr("gradientUnits", "userSpaceOnUse");
+
+        // Set gradient start and end positions based on link positions.
+        if (source && target) {
+          gradient
+            .attr("x1", source.x1!)
+            .attr("y1", (source.y0! + source.y1!) / 2)
+            .attr("x2", target.x0!)
+            .attr("y2", (target.y0! + target.y1!) / 2);
+        } else {
+          // Fallback positions.
+          gradient
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", 1)
+            .attr("y2", 0);
+        }
+
+        // Define gradient stops.
+        gradient.append("stop")
+          .attr("offset", "0%")
+          .attr("stop-color", sourceColor);
+        gradient.append("stop")
+          .attr("offset", "100%")
+          .attr("stop-color", targetColor);
+
+        return `url(#${gradientID})`;
       })
       .attr("opacity", 0)
       .transition()
@@ -219,6 +260,13 @@ export class SankeyComponent implements OnInit {
         const midpoint = pathEl.getPointAtLength(totalLength / 2);
         const parentEl = pathEl.parentNode as Element | null;
         if (parentEl) {
+          // Retrieve source and target names.
+          const sourceNode = typeof d.source === 'object' ? d.source as SankeyNode : null;
+          const targetNode = typeof d.target === 'object' ? d.target as SankeyNode : null;
+          const sourceName = sourceNode ? sourceNode.name : "";
+          const targetName = targetNode ? targetNode.name : "";
+
+          // Look up percentage (if not found, default to '0%').
           const sourceIndex: number = (typeof d.source === 'object' && d.source !== null && 'index' in d.source)
             ? (d.source as any).index
             : d.source as number;
@@ -229,29 +277,43 @@ export class SankeyComponent implements OnInit {
             link.source === sourceIndex && link.target === targetIndex
           )?.percentageFromSource || '0%';
 
-          d3.select(parentEl)
+          // Create a text element and append three tspans for multi-line text.
+          const text = d3.select(parentEl)
             .append("text")
             .attr("x", midpoint.x)
             .attr("y", midpoint.y)
-            .attr("dy", "0.35em")
             .attr("text-anchor", "middle")
-            .text(`${this.formatNumber(d.value)} (${percentage})`)
-            .attr("fill", "#000")
-            .attr("opacity", 0)
-            .transition()
+            .attr("opacity", 0);
+
+          // First row: edge name (e.g., "Source -> Target")
+          text.append("tspan")
+            .text(`${sourceName}`)
+            .attr("x", midpoint.x)
+            .attr("dy", "-1.2em"); // shift upward
+
+          // Second row: value
+          text.append("tspan")
+            .text(`${this.formatNumber(d.value)}`)
+            .attr("x", midpoint.x)
+            .attr("dy", "1.2em"); // spacing between rows
+
+          // Third row: percentage in brackets
+          text.append("tspan")
+            .text(`(${percentage})`)
+            .attr("x", midpoint.x)
+            .attr("dy", "1.2em");
+
+          // Fade in the label.
+          text.transition()
             .duration(this.animationDuration)
-            .attr("opacity", 1);
+            .attr("opacity", 1)
+            .attr("fill", "#000");
         }
       });
   }
 
   private renderNodes(graph: SankeyGraph<SankeyNode, SankeyLink>): void {
-    const materialColors: string[] = [
-      "#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#AB47BC",
-      "#00ACC1", "#FF7043", "#9E9D24", "#5C6BC0", "#8D6E63"
-    ];
-    const color = d3.scaleOrdinal<string, string>(materialColors);
-
+    // Use the common color scale (this.color) defined earlier.
     this.svg.append("g")
       .selectAll("rect")
       .data(graph.nodes)
@@ -260,7 +322,7 @@ export class SankeyComponent implements OnInit {
       .attr("y", (d: SankeyNode) => d.y0!)
       .attr("height", (d: SankeyNode) => d.y1! - d.y0!)
       .attr("width", (d: SankeyNode) => d.x1! - d.x0!)
-      .style("fill", (d: SankeyNode) => color(d.name))
+      .style("fill", (d: SankeyNode) => this.color(d.name))
       .style("stroke", "#ffffff")
       .attr("opacity", 0)
       .transition()
