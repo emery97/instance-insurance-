@@ -47,26 +47,19 @@ interface AvgBmiData {
   region: string;
 }
 
-interface insurancePremiumData {
-  premium: number;
-}
-
-interface insuranceInvestmentData {
-  investment: number;
-}
-
-interface insuranceContractLSData {
-  contractLS: number;
-}
-
-interface profitData {
-  profit: number;
-}
-interface SankeyData {
+interface SankeyRevenueData {
   insurance_premiums: number;
   investment_income: number;
   contract_lump_sums: number;
   total_profit: number;
+}
+
+interface SankeyExpensesData {
+  marketing_expense: number;
+  electricity_expense: number;
+  rent_expense: number;
+  legal_expense: number;
+  expenses: number;
 }
 
 async function getAllInsuranceData(): Promise<InsuranceData[]> {
@@ -160,7 +153,7 @@ async function avgBmi(): Promise<AvgBmiData[]> {
   return result.rows;
 }
 
-async function getSankeyInsuranceData(): Promise<SankeyData[]> {
+async function getSankeyInsuranceData(): Promise<SankeyRevenueData[]> {
   const result = await pool.query(`
     SELECT 
       SUM(insurance_premiums) AS insurance_premiums,
@@ -169,7 +162,21 @@ async function getSankeyInsuranceData(): Promise<SankeyData[]> {
       SUM(insurance_premiums + investment_income + contract_lump_sums) AS revenue
     FROM public.insurance_profits;
   `);
-  
+
+  return result.rows;
+}
+
+async function getSankeyExpensesData(): Promise<SankeyExpensesData[]> {
+  const result = await pool.query(`
+      SELECT 
+      SUM(marketing_expense) AS marketing_expense,
+      SUM(electricity_expense) AS electricity_expense,
+      SUM(rent_expense) AS rent_expense,
+	  SUM(legal_expense) AS legal_expense,
+      SUM(marketing_expense + electricity_expense + rent_expense + legal_expense) AS expenses
+    FROM public.insurance_expenses;
+  `);
+
   return result.rows;
 }
 
@@ -183,4 +190,5 @@ export {
   getAgeBMIMale,
   avgBmi,
   getSankeyInsuranceData,
+  getSankeyExpensesData,
 };

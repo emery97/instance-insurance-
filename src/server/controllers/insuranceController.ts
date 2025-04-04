@@ -1,14 +1,6 @@
 import { Request, Response } from 'express';
-import { 
-  getAllInsuranceData, 
-  getAllAgeData, 
-  getSex, 
-  getBMI, 
-  getAgeBMIFemale, 
-  getAgeBMIMale, 
-  avgBmi, 
-  getSankeyInsuranceData,
-} from '../models/insuranceModel';
+import * as InsuranceModel from '../models/insuranceModel';
+
 
 // Type for the response data (adjust based on the actual return type from the functions)
 type DataResponse = {
@@ -17,7 +9,7 @@ type DataResponse = {
 
 async function getInsuranceData(req: Request, res: Response): Promise<void> {
   try {
-    const data: DataResponse = await getAllInsuranceData();
+    const data: DataResponse = await InsuranceModel.getAllInsuranceData();
     res.status(200).json(data);
   } catch (err: any) {
     console.error('Error fetching insurance data:', err);
@@ -27,7 +19,7 @@ async function getInsuranceData(req: Request, res: Response): Promise<void> {
 
 async function getAgeData(req: Request, res: Response): Promise<void> {
   try {
-    const data: DataResponse = await getAllAgeData();
+    const data: DataResponse = await InsuranceModel.getAllAgeData();
     res.status(200).json(data);
   } catch (err: any) {
     console.error('Error fetching age data:', err);
@@ -37,7 +29,7 @@ async function getAgeData(req: Request, res: Response): Promise<void> {
 
 async function getSexData(req: Request, res: Response): Promise<void> {
   try {
-    const data: DataResponse = await getSex();
+    const data: DataResponse = await InsuranceModel.getSex();
     res.status(200).json(data);
   } catch (err: any) {
     console.error('Error fetching sex data:', err);
@@ -47,7 +39,7 @@ async function getSexData(req: Request, res: Response): Promise<void> {
 
 async function getBMIData(req: Request, res: Response): Promise<void> {
   try {
-    const data: DataResponse = await getBMI();
+    const data: DataResponse = await InsuranceModel.getBMI();
     res.status(200).json(data);
   } catch (err: any) {
     console.error('Error fetching BMI data:', err);
@@ -57,7 +49,7 @@ async function getBMIData(req: Request, res: Response): Promise<void> {
 
 async function getAgeBMIFemaleData(req: Request, res: Response): Promise<void> {
   try {
-    const data: DataResponse = await getAgeBMIFemale();
+    const data: DataResponse = await InsuranceModel.getAgeBMIFemale();
     res.status(200).json(data);
   } catch (err: any) {
     console.error('Error fetching Age BMI Female data:', err);
@@ -67,7 +59,7 @@ async function getAgeBMIFemaleData(req: Request, res: Response): Promise<void> {
 
 async function getAgeBMIMaleData(req: Request, res: Response): Promise<void> {
   try {
-    const data: DataResponse = await getAgeBMIMale();
+    const data: DataResponse = await InsuranceModel.getAgeBMIMale();
     res.status(200).json(data);
   } catch (err: any) {
     console.error('Error fetching Age BMI male data:', err);
@@ -77,7 +69,7 @@ async function getAgeBMIMaleData(req: Request, res: Response): Promise<void> {
 
 async function getAvgBmiData(req: Request, res: Response): Promise<void> {
   try {
-    const data: DataResponse = await avgBmi();
+    const data: DataResponse = await InsuranceModel.avgBmi();
     res.status(200).json(data);
   } catch (err: any) {
     console.error('Error fetching average BMI data:', err);
@@ -88,10 +80,20 @@ async function getAvgBmiData(req: Request, res: Response): Promise<void> {
 
 async function getAllSankeyInsuranceData(req: Request, res: Response): Promise<void> {
   try {
-    const data: DataResponse = await getSankeyInsuranceData();
+    const data: DataResponse = await InsuranceModel.getSankeyInsuranceData();
     res.status(200).json(data);
   } catch (err: any) {
     console.error('Error fetching sankey insurance data:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+}
+
+async function getAllSankeyExpensesData(req: Request, res: Response): Promise<void> {
+  try {
+    const data: DataResponse = await InsuranceModel.getSankeyExpensesData();
+    res.status(200).json(data);
+  } catch (err: any) {
+    console.error('Error fetching sankey expenses data:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 }
@@ -105,4 +107,5 @@ export {
   getAgeBMIMaleData,
   getAvgBmiData,
   getAllSankeyInsuranceData,
+  getAllSankeyExpensesData,
 };

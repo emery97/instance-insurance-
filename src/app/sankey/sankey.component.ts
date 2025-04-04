@@ -63,7 +63,7 @@ export class SankeyComponent implements OnInit {
       .nodePadding(10)
       .extent([[1, 1], [this.width - 1, this.height - 6]]);
 
-    d3.json("http://localhost:3000/insurance/sankey")
+    d3.json("http://localhost:3000/insurance/sankey-revenue")
       .then((data: any) => {
         // If data is an array, select the first object
         const dataObject: Record<string, any> = Array.isArray(data) ? data[0] : data;

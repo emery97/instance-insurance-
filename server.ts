@@ -1,14 +1,4 @@
-import { 
-  getInsuranceData, 
-  getAgeData, 
-  getSexData, 
-  getBMIData, 
-  getAgeBMIFemaleData, 
-  getAgeBMIMaleData,
-  getAvgBmiData,
-  getAllSankeyInsuranceData,
-} from './src/server/controllers/insuranceController';
-
+import * as InsuranceController from './src/server/controllers/insuranceController';
 import express from 'express';
 import cors from 'cors';
 const app = express();
@@ -21,14 +11,15 @@ app.use(cors({
 }));
 app.use(express.json());
 
-app.use('/insurance/data', getInsuranceData);
-app.use('/insurance/age', getAgeData); 
-app.use('/insurance/sex', getSexData);
-app.use('/insurance/bmi', getBMIData);
-app.use('/insurance/female-bmi', getAgeBMIFemaleData);
-app.use('/insurance/male-bmi', getAgeBMIMaleData);
-app.use('/insurance/avg-bmi', getAvgBmiData);
-app.use('/insurance/sankey', getAllSankeyInsuranceData);
+app.use('/insurance/data', InsuranceController.getInsuranceData);
+app.use('/insurance/age', InsuranceController.getAgeData); 
+app.use('/insurance/sex', InsuranceController.getSexData);
+app.use('/insurance/bmi', InsuranceController.getBMIData);
+app.use('/insurance/female-bmi', InsuranceController.getAgeBMIFemaleData);
+app.use('/insurance/male-bmi', InsuranceController.getAgeBMIMaleData);
+app.use('/insurance/avg-bmi', InsuranceController.getAvgBmiData);
+app.use('/insurance/sankey-revenue', InsuranceController.getAllSankeyInsuranceData);
+app.use('/insurance/sankey-expenses', InsuranceController.getAllSankeyExpensesData);
 
 
 // Start the server
