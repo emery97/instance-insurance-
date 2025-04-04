@@ -113,7 +113,7 @@ export class SankeyComponent implements OnInit {
 
       // Function to update links using new indices based on node names.
       const updateLinks = (
-        links: BackendLinksData, 
+        links: BackendLinksData,
         oldNodes: BackendNodesData
       ): BackendLinksData => {
         return {
@@ -126,11 +126,11 @@ export class SankeyComponent implements OnInit {
               return null; // Skip invalid links
             }
 
-            return { 
-              ...link, 
-              source: newSourceNode.node, 
-              target: newTargetNode.node, 
-              value: link.value 
+            return {
+              ...link,
+              source: newSourceNode.node,
+              target: newTargetNode.node,
+              value: link.value
             };
           }).filter(link => link !== null) as BackendLink[]
         };
@@ -187,11 +187,10 @@ export class SankeyComponent implements OnInit {
       // Render the chart parts using the updated graph.
       this.renderLinks(graph, graphLinksWithPercentages);
       this.renderNodes(graph);
-      this.renderNodeLabels(graph);
     })
-    .catch((error: any) => {
-      console.error("Error loading Sankey data: ", error);
-    });
+      .catch((error: any) => {
+        console.error("Error loading Sankey data: ", error);
+      });
   }
 
   private renderLinks(
@@ -287,21 +286,27 @@ export class SankeyComponent implements OnInit {
 
           // First row: edge name (e.g., "Source -> Target")
           text.append("tspan")
-            .text(`${sourceName}`)
+            .text(sourceName
+              .replace(/_/g, ' ')
+              .replace(/\b\w/g, char => char.toUpperCase()))
             .attr("x", midpoint.x)
-            .attr("dy", "-1.2em"); // shift upward
+            .attr("dy", "-1.2em")
+            .style("font-size", "12px");
 
           // Second row: value
           text.append("tspan")
             .text(`${this.formatNumber(d.value)}`)
             .attr("x", midpoint.x)
-            .attr("dy", "1.2em"); // spacing between rows
+            .attr("dy", "1.2em")
+            .style("font-size", "12px");
 
           // Third row: percentage in brackets
           text.append("tspan")
             .text(`(${percentage})`)
             .attr("x", midpoint.x)
-            .attr("dy", "1.2em");
+            .attr("dy", "1.2em")
+            .style("font-size", "12px");
+
 
           // Fade in the label.
           text.transition()
@@ -313,7 +318,7 @@ export class SankeyComponent implements OnInit {
   }
 
   private renderNodes(graph: SankeyGraph<SankeyNode, SankeyLink>): void {
-    // Use the common color scale (this.color) defined earlier.
+    // Render node rectangles
     this.svg.append("g")
       .selectAll("rect")
       .data(graph.nodes)
@@ -328,30 +333,22 @@ export class SankeyComponent implements OnInit {
       .transition()
       .duration(this.animationDuration)
       .attr("opacity", 1);
-  }
 
-  private renderNodeLabels(graph: SankeyGraph<SankeyNode, SankeyLink>): void {
+    // Append text labels to nodes with smaller font size and formatted names.
     this.svg.append("g")
       .selectAll("text")
       .data(graph.nodes)
       .enter().append("text")
-      .attr("x", (d: SankeyNode) => d.x0! - 6)
-      .attr("y", (d: SankeyNode) => (d.y1! + d.y0!) / 2)
+      .attr("x", (d: SankeyNode) => d.x0! - 6) // adjust horizontal position as needed
+      .attr("y", (d: SankeyNode) => (d.y0! + d.y1!) / 2)
       .attr("dy", "0.35em")
       .attr("text-anchor", "end")
-      .text((d: SankeyNode) => {
-        return d.name.split('_')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-          .join(' ');
-      })
-      .attr("opacity", 0)
-      .transition()
-      .duration(this.animationDuration)
-      .attr("opacity", 1)
-      .filter((d: SankeyNode) => d.x0! < this.width / 2)
-      .attr("x", (d: SankeyNode) => d.x1! + 6)
-      .attr("text-anchor", "start");
+      .text(d => this.formatNodeName(d.name))
+      .style("font-size", "10px");  // decrease font size as desired
   }
+
+
+
 
   private convertDataToNodes(data: Record<string, any>): BackendNodesData {
     if (!data || typeof data !== 'object') {
@@ -398,6 +395,12 @@ export class SankeyComponent implements OnInit {
     }
     return value.toString();
   }
+  private formatNodeName(name: string): string {
+    return name.split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
 
   private computeLinkPercentages(links: { source: number; target: number; value: string }[]): {
     source: number;
