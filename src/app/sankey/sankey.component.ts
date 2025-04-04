@@ -63,45 +63,85 @@ export class SankeyComponent implements OnInit {
       .nodePadding(10)
       .extent([[1, 1], [this.width - 1, this.height - 6]]);
 
-    d3.json("http://localhost:3000/insurance/sankey-revenue")
-      .then((data: any) => {
-        // If data is an array, select the first object
-        const dataObject: Record<string, any> = Array.isArray(data) ? data[0] : data;
-        const nodesData: BackendNodesData = this.convertDataToNodes(dataObject);
-        const linksData: BackendLinksData = this.convertDataToLinks(nodesData, dataObject);
+    Promise.all([
+      d3.json("http://localhost:3000/insurance/sankey-revenue"),
+      d3.json("http://localhost:3000/insurance/sankey-expenses")
+    ]).then(([revenueData, expensesData]: [any, any]) => {
+      // Process revenue data
+      const revenueObj: Record<string, any> = Array.isArray(revenueData) ? revenueData[0] : revenueData;
+      const revenueNodes: BackendNodesData = this.convertDataToNodes(revenueObj);
+      const revenueLinks: BackendLinksData = this.convertDataToLinks(revenueNodes, revenueObj);
 
-        // Map backend nodes and links into Sankey format
-        const sankeyNodes: SankeyNode[] = nodesData.nodes.map((d: BackendNode) => ({
-          name: d.name,
-          type: d.type
-        }));
+      // Process expenses data
+      const expensesObj: Record<string, any> = Array.isArray(expensesData) ? expensesData[0] : expensesData;
+      const expensesNodes: BackendNodesData = this.convertDataToNodes(expensesObj);
+      const expensesLinks: BackendLinksData = this.convertDataToLinks(expensesNodes, expensesObj);
 
-        const sankeyLinks: SankeyLink[] = linksData.links.map((d: BackendLink) => ({
-          source: d.source,
-          target: d.target,
-          value: d.value
-        }));
+      // Sort revenue nodes alphabetically
+      const sortedRevenueNodes = revenueNodes.nodes.sort((a, b) => a.name.localeCompare(b.name));
 
-        // Compute node and link positions
-        const graph: SankeyGraph<SankeyNode, SankeyLink> = sankeyGenerator({
-          nodes: sankeyNodes.map(d => ({ ...d })),
-          links: sankeyLinks.map(d => ({ ...d }))
-        });
+      // Sort expense nodes alphabetically, but keep "expenses" node separate
+      let expensesTotalNode = expensesNodes.nodes.find(n => n.name === 'expenses');
+      let otherExpenseNodes = expensesNodes.nodes.filter(n => n.name !== 'expenses')
+        .sort((a, b) => a.name.localeCompare(b.name));
 
-        // Compute percentages for link labels
-        const graphLinksWithPercentages = this.computeLinkPercentages(
-          linksData.links.map(link => ({
-            source: typeof link.source === 'number' ? link.source : 0,
-            target: typeof link.target === 'number' ? link.target : 0,
-            value: link.value.toString()
-          }))
-        );
+      // Merge with revenue nodes first, then place "expenses" at index 4, followed by other expenses
+      let sortedNodes = [
+        ...sortedRevenueNodes,    // Revenue nodes first
+        expensesTotalNode,        // "expenses" node at index 4
+        ...otherExpenseNodes      // Other expense nodes after
+      ];
 
-        // Render the chart parts
-        this.renderLinks(graph, graphLinksWithPercentages);
-        this.renderNodes(graph);
-        this.renderNodeLabels(graph);
-      })
+      // Re-index nodes to maintain consistency
+      sortedNodes.forEach((node, index) => {
+        if (node) {
+          node.node = index; // Update node index to be sequential
+        }
+      });
+
+      // Adjust links to reflect new indices
+      const updateLinks = (links: BackendLinksData, oldNodes: BackendNodesData) => {
+        return links.links.map(link => {
+          const newSourceNode = sortedNodes.find(n => n && n.name === oldNodes.nodes[link.source]?.name);
+          const newTargetNode = sortedNodes.find(n => n && n.name === oldNodes.nodes[link.target]?.name);
+
+          if (!newSourceNode || !newTargetNode) {
+            console.warn(`Missing node mapping for link:`, link);
+            return null; // Skip invalid links
+          }
+
+          return { ...link, source: newSourceNode.node, target: newTargetNode.node };
+        }).filter(link => link !== null); // Remove any invalid links
+      };
+
+
+      const updatedRevenueLinks = updateLinks(revenueLinks, revenueNodes);
+      const updatedExpensesLinks = updateLinks(expensesLinks, expensesNodes);
+
+      // Combined results
+      console.log("Sorted Merged Nodes (Revenue First, Expenses at Index 4): ", sortedNodes);
+      console.log("Updated Revenue Links: ", updatedRevenueLinks);
+      console.log("Updated Expenses Links: ", updatedExpensesLinks);
+
+      // Compute node and link positions
+      const graph: SankeyGraph<SankeyNode, SankeyLink> = sankeyGenerator({
+        nodes: revenueNodes.nodes.map(d => ({ ...d })),
+        links: revenueLinks.links.map(d => ({ ...d }))
+      });
+
+      // Compute percentages for link labels
+      const graphLinksWithPercentages = this.computeLinkPercentages(
+        revenueLinks.links.map(link => ({
+          source: typeof link.source === 'number' ? link.source : 0,
+          target: typeof link.target === 'number' ? link.target : 0,
+          value: link.value.toString()
+        }))
+      );
+      // Render the chart parts
+      this.renderLinks(graph, graphLinksWithPercentages);
+      this.renderNodes(graph);
+      this.renderNodeLabels(graph);
+    })
       .catch((error: any) => {
         console.error("Error loading Sankey data: ", error);
       });
@@ -111,17 +151,31 @@ export class SankeyComponent implements OnInit {
     graph: SankeyGraph<SankeyNode, SankeyLink>,
     graphLinksWithPercentages: { source: number; target: number; value: number; percentageFromSource: string }[]
   ): void {
+    // Define the same color scale used in renderNodes for consistency
+    const materialColors: string[] = [
+      "#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#AB47BC",
+      "#00ACC1", "#FF7043", "#9E9D24", "#5C6BC0", "#8D6E63"
+    ];
+    const color = d3.scaleOrdinal<string, string>(materialColors);
+    
     const linkGroup: d3.Selection<SVGGElement, unknown, HTMLElement, any> = this.svg.append("g")
       .attr("fill", "none")
-      .attr("stroke", "#757575")
-      .attr("stroke-opacity", 0.2);
-
+      .attr("stroke-opacity", 0.4); // Increased opacity a bit from 0.2
+    
     linkGroup.selectAll("path")
       .data(graph.links)
       .enter().append("path")
       .attr("class", "link")
       .attr("d", sankeyLinkHorizontal())
       .style("stroke-width", (d: SankeyLink) => Math.max(1, d.width!))
+      // Get color from source node
+      .style("stroke", (d: SankeyLink) => {
+        // Get the source node to determine its color
+        const source = typeof d.source === 'object' ? d.source : null;
+        return source && 'name' in source 
+          ? color((source as SankeyNode).name) 
+          : "#757575"; // Fallback color
+      })
       .attr("opacity", 0)
       .transition()
       .duration(this.animationDuration)
@@ -141,7 +195,7 @@ export class SankeyComponent implements OnInit {
           const percentage: string = graphLinksWithPercentages.find(link => {
             return link.source === sourceIndex && link.target === targetIndex;
           })?.percentageFromSource || '0%';
-
+  
           d3.select(parentEl)
             .append("text")
             .attr("x", midpoint.x)
