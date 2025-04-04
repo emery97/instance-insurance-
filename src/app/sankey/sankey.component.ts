@@ -54,9 +54,11 @@ export class SankeyComponent implements OnInit {
   private width = 960;
   private height = 500;
 
-  constructor() {}
+  constructor() { }
 
   ngOnInit(): void {
+    const self = this;
+
     // Select the SVG element
     this.svg = d3.select<SVGSVGElement, unknown>('svg');
 
@@ -74,11 +76,11 @@ export class SankeyComponent implements OnInit {
         const dataObject = Array.isArray(data) ? data[0] : data;
 
         // Convert raw backend data into nodes
-        const nodesData = this.convertDataToNodes(dataObject);
+        const nodesData = self.convertDataToNodes(dataObject);
         console.log("Converted Nodes: ", nodesData);
 
         // Create links using the actual value from the backend data.
-        const linksData = this.convertDataToLinks(nodesData, dataObject);
+        const linksData = self.convertDataToLinks(nodesData, dataObject);
         console.log("Converted Links: ", linksData);
 
         // Map backend nodes into the format expected by the Sankey layout
@@ -116,7 +118,7 @@ export class SankeyComponent implements OnInit {
           .transition()
           .duration(1000)
           .attr("opacity", 1)
-          .on("end", function(d) {
+          .on("end", function (d) {
             const pathEl = this as SVGPathElement;
             const totalLength = pathEl.getTotalLength();
             const midpoint = pathEl.getPointAtLength(totalLength / 2);
@@ -129,7 +131,7 @@ export class SankeyComponent implements OnInit {
                 .attr("y", midpoint.y)
                 .attr("dy", "0.35em")
                 .attr("text-anchor", "middle")
-                .text(d.value.toString())
+                .text(self.formatNumber(d.value))
                 .attr("fill", "#000")
                 .attr("opacity", 0)
                 .transition()
@@ -137,7 +139,7 @@ export class SankeyComponent implements OnInit {
                 .attr("opacity", 1);
             }
           });
-          
+
 
         // Create a Material Design–inspired color scale for nodes
         const materialColors = [
@@ -217,4 +219,15 @@ export class SankeyComponent implements OnInit {
     });
     return { links };
   }
+
+  formatNumber(value: number): string {
+    if (value >= 1_000_000) {
+      return (value / 1_000_000).toFixed(value % 1_000_000 === 0 ? 0 : 2).replace(/\.00?$/, '') + 'M';
+    } else if (value >= 1_000) {
+      return (value / 1_000).toFixed(value % 1_000 === 0 ? 0 : 2).replace(/\.00?$/, '') + 'K';
+    }
+    return value.toString();
+  }
+  
+
 }
