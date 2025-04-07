@@ -80,7 +80,7 @@ async function getAvgBmiData(req: Request, res: Response): Promise<void> {
 
 async function getAllSankeyInsuranceData(req: Request, res: Response): Promise<void> {
   try {
-    const data: DataResponse = await InsuranceModel.getSankeyInsuranceData();
+    const data: DataResponse = await InsuranceModel.getSankeyRevenueData();
     res.status(200).json(data);
   } catch (err: any) {
     console.error('Error fetching sankey insurance data:', err);
@@ -98,6 +98,16 @@ async function getAllSankeyExpensesData(req: Request, res: Response): Promise<vo
   }
 }
 
+async function getAllSankeyProfitData(req: Request, res: Response): Promise<void> {
+  try {
+    const data: DataResponse = await InsuranceModel.getSankeyProfitData();
+    res.status(200).json(data);
+  } catch (err: any) {
+    console.error('Error fetching sankey profit data:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+}
+
 export {
   getInsuranceData,
   getAgeData,
@@ -108,4 +118,5 @@ export {
   getAvgBmiData,
   getAllSankeyInsuranceData,
   getAllSankeyExpensesData,
+  getAllSankeyProfitData
 };

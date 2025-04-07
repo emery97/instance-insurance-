@@ -20,6 +20,7 @@ app.use('/insurance/male-bmi', InsuranceController.getAgeBMIMaleData);
 app.use('/insurance/avg-bmi', InsuranceController.getAvgBmiData);
 app.use('/insurance/sankey-revenue', InsuranceController.getAllSankeyInsuranceData);
 app.use('/insurance/sankey-expenses', InsuranceController.getAllSankeyExpensesData);
+app.use('/insurance/sankey-profit', InsuranceController.getAllSankeyProfitData);
 
 
 // Start the server

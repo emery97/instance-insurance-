@@ -62,6 +62,12 @@ interface SankeyExpensesData {
   expenses: number;
 }
 
+interface SankeyProfitData {
+  savings: number;
+  investments: number;
+  dividends : number;
+}
+
 async function getAllInsuranceData(): Promise<InsuranceData[]> {
   const result = await pool.query("SELECT * FROM insurance.insurance;");
   return result.rows;
@@ -153,14 +159,14 @@ async function avgBmi(): Promise<AvgBmiData[]> {
   return result.rows;
 }
 
-async function getSankeyInsuranceData(): Promise<SankeyRevenueData[]> {
+async function getSankeyRevenueData(): Promise<SankeyRevenueData[]> {
   const result = await pool.query(`
     SELECT 
       SUM(insurance_premiums) AS insurance_premiums,
       SUM(investment_income) AS investment_income,
       SUM(contract_lump_sums) AS contract_lump_sums,
       SUM(insurance_premiums + investment_income + contract_lump_sums) AS revenue
-    FROM public.insurance_profits;
+    FROM public.insurance_revenue;
   `);
 
   return result.rows;
@@ -179,6 +185,17 @@ async function getSankeyExpensesData(): Promise<SankeyExpensesData[]> {
   return result.rows;
 }
 
+async function getSankeyProfitData(): Promise<SankeyProfitData[]> {
+  const result = await pool.query(`
+    SELECT 
+    SUM(savings) AS savings,
+    SUM(investments) AS investments,
+    SUM(dividends) AS dividends
+    FROM public.insurance_profits;
+  `);
+  return result.rows;
+}
+
 
 export {
   getAllInsuranceData,
@@ -188,6 +205,7 @@ export {
   getAgeBMIFemale,
   getAgeBMIMale,
   avgBmi,
-  getSankeyInsuranceData,
+  getSankeyRevenueData,
   getSankeyExpensesData,
+  getSankeyProfitData,
 };
