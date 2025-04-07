@@ -168,12 +168,11 @@ async function getSankeyInsuranceData(): Promise<SankeyRevenueData[]> {
 
 async function getSankeyExpensesData(): Promise<SankeyExpensesData[]> {
   const result = await pool.query(`
-      SELECT 
-      SUM(marketing_expense) AS marketing_expense,
-      SUM(electricity_expense) AS electricity_expense,
-      SUM(rent_expense) AS rent_expense,
-	  SUM(legal_expense) AS legal_expense,
-      SUM(marketing_expense + electricity_expense + rent_expense + legal_expense) AS expenses
+    SELECT 
+	  SUM(insurance_claims) AS insurance_claims,
+	  SUM(commissions_and_agent_fees) AS commissions_and_agent_fees,
+    SUM(operating_expenses) AS operating_expenses,
+	  SUM (insurance_claims + commissions_and_agent_fees + operating_expenses ) AS expenses
     FROM public.insurance_expenses;
   `);
 

@@ -75,10 +75,15 @@ export class SankeyComponent implements OnInit {
       const revenueNodesData: BackendNodesData = this.convertDataToNodes(revenueObj);
       const revenueLinksData: BackendLinksData = this.convertDataToLinks(revenueNodesData, revenueObj);
 
+      console.log("Revenue Nodes Data:", revenueNodesData);
+      console.log("Revenue Links Data:", revenueLinksData);
       // Process expenses data
       const expensesObj = Array.isArray(expensesData) ? expensesData[0] : expensesData;
       const expensesNodesData: BackendNodesData = this.convertDataToNodes(expensesObj);
       const expensesLinksData: BackendLinksData = this.convertDataToLinks(expensesNodesData, expensesObj);
+
+      console.log("Expenses Nodes Data:", expensesNodesData);
+      console.log("Expenses Links Data:", expensesLinksData);
 
       // Separate revenue nodes into inflows and the revenue total.
       const revenueTotalNode = revenueNodesData.nodes.find(n => n.name === 'revenue');
@@ -264,7 +269,7 @@ export class SankeyComponent implements OnInit {
           const targetNode = typeof d.target === 'object' ? d.target as SankeyNode : null;
           const sourceName = sourceNode ? sourceNode.name : "";
           const targetName = targetNode ? targetNode.name : "";
-
+      
           // Look up percentage (if not found, default to '0%').
           const sourceIndex: number = (typeof d.source === 'object' && d.source !== null && 'index' in d.source)
             ? (d.source as any).index
@@ -275,39 +280,41 @@ export class SankeyComponent implements OnInit {
           const percentage: string = graphLinksWithPercentages.find(link =>
             link.source === sourceIndex && link.target === targetIndex
           )?.percentageFromSource || '0%';
-
+      
+          // Define a horizontal offset to place the text to the right of the link.
+          const offset = 10;
+      
           // Create a text element and append three tspans for multi-line text.
           const text = d3.select(parentEl)
             .append("text")
-            .attr("x", midpoint.x)
+            .attr("x", midpoint.x + offset)  // move text to the right
             .attr("y", midpoint.y)
-            .attr("text-anchor", "middle")
+            .attr("text-anchor", "start")    // align text to the left
             .attr("opacity", 0);
-
+      
           // First row: edge name (e.g., "Source -> Target")
           text.append("tspan")
             .text(sourceName
               .replace(/_/g, ' ')
               .replace(/\b\w/g, char => char.toUpperCase()))
-            .attr("x", midpoint.x)
+            .attr("x", midpoint.x + offset)
             .attr("dy", "-1.2em")
-            .style("font-size", "12px");
-
+            .style("font-size", "10px"); // smaller font
+      
           // Second row: value
           text.append("tspan")
             .text(`${this.formatNumber(d.value)}`)
-            .attr("x", midpoint.x)
+            .attr("x", midpoint.x + offset)
             .attr("dy", "1.2em")
-            .style("font-size", "12px");
-
+            .style("font-size", "10px");
+      
           // Third row: percentage in brackets
           text.append("tspan")
             .text(`(${percentage})`)
-            .attr("x", midpoint.x)
+            .attr("x", midpoint.x + offset)
             .attr("dy", "1.2em")
-            .style("font-size", "12px");
-
-
+            .style("font-size", "10px");
+      
           // Fade in the label.
           text.transition()
             .duration(this.animationDuration)
@@ -346,9 +353,6 @@ export class SankeyComponent implements OnInit {
       .text(d => this.formatNodeName(d.name))
       .style("font-size", "10px");  // decrease font size as desired
   }
-
-
-
 
   private convertDataToNodes(data: Record<string, any>): BackendNodesData {
     if (!data || typeof data !== 'object') {
