@@ -11,6 +11,7 @@ interface SankeyNode {
   y0?: number;
   y1?: number;
   node?: number;  // for indexing
+  value?: number; // computed by sankey layout
 }
 
 interface SankeyLink {
@@ -75,15 +76,10 @@ export class SankeyComponent implements OnInit {
       const revenueNodesData: BackendNodesData = this.convertDataToNodes(revenueObj);
       const revenueLinksData: BackendLinksData = this.convertDataToLinks(revenueNodesData, revenueObj);
 
-      console.log("Revenue Nodes Data:", revenueNodesData);
-      console.log("Revenue Links Data:", revenueLinksData);
       // Process expenses data
       const expensesObj = Array.isArray(expensesData) ? expensesData[0] : expensesData;
       const expensesNodesData: BackendNodesData = this.convertDataToNodes(expensesObj);
       const expensesLinksData: BackendLinksData = this.convertDataToLinks(expensesNodesData, expensesObj);
-
-      console.log("Expenses Nodes Data:", expensesNodesData);
-      console.log("Expenses Links Data:", expensesLinksData);
 
       // Separate revenue nodes into inflows and the revenue total.
       const revenueTotalNode = revenueNodesData.nodes.find(n => n.name === 'revenue');
@@ -127,7 +123,7 @@ export class SankeyComponent implements OnInit {
             const newTargetNode = mergedNodes.find(n => n.name === oldNodes.nodes[link.target]?.name);
 
             if (!newSourceNode || !newTargetNode) {
-              console.warn(`Missing node mapping for link:`, link);
+              console.warn("Missing node mapping for link:", link);
               return null; // Skip invalid links
             }
 
@@ -169,42 +165,27 @@ export class SankeyComponent implements OnInit {
         ...dynamicExpenseLinks
       ];
 
-      console.log("Merged Nodes (ordered):", mergedNodes);
-      console.log("Updated Revenue Links:", updatedRevenueLinks);
-      console.log("Dynamic Expense Links:", dynamicExpenseLinks);
-      console.log("Combined Links:", combinedLinks);
-
       // Build the graph using the merged nodes and combined links.
       const graph: SankeyGraph<SankeyNode, SankeyLink> = sankeyGenerator({
         nodes: mergedNodes.map(d => ({ ...d })),
         links: combinedLinks.map(d => ({ ...d }))
       });
 
-      // Compute percentages for link labels using combined links.
-      const graphLinksWithPercentages = this.computeLinkPercentages(
-        combinedLinks.map(link => ({
-          source: typeof link.source === 'number' ? link.source : 0,
-          target: typeof link.target === 'number' ? link.target : 0,
-          value: link.value.toString()
-        }))
-      );
-
       // Render the chart parts using the updated graph.
-      this.renderLinks(graph, graphLinksWithPercentages);
+      // Note: Link labelling is removed for a cleaner UI.
+      this.renderLinks(graph);
       this.renderNodes(graph);
     })
-      .catch((error: any) => {
-        console.error("Error loading Sankey data: ", error);
-      });
+    .catch((error: any) => {
+      console.error("Error loading Sankey data: ", error);
+    });
   }
 
-  private renderLinks(
-    graph: SankeyGraph<SankeyNode, SankeyLink>,
-    graphLinksWithPercentages: { source: number; target: number; value: number; percentageFromSource: string }[]
-  ): void {
+  private renderLinks(graph: SankeyGraph<SankeyNode, SankeyLink>): void {
     // Use the common color scale (this.color) defined earlier.
     const defs = this.svg.append("defs");
 
+    // Render only the link paths (no text labels)
     const linkGroup = this.svg.append("g")
       .attr("fill", "none")
       .attr("stroke-opacity", 0.4);
@@ -228,7 +209,6 @@ export class SankeyComponent implements OnInit {
           .attr("id", gradientID)
           .attr("gradientUnits", "userSpaceOnUse");
 
-        // Set gradient start and end positions based on link positions.
         if (source && target) {
           gradient
             .attr("x1", source.x1!)
@@ -236,7 +216,6 @@ export class SankeyComponent implements OnInit {
             .attr("x2", target.x0!)
             .attr("y2", (target.y0! + target.y1!) / 2);
         } else {
-          // Fallback positions.
           gradient
             .attr("x1", 0)
             .attr("y1", 0)
@@ -244,7 +223,6 @@ export class SankeyComponent implements OnInit {
             .attr("y2", 0);
         }
 
-        // Define gradient stops.
         gradient.append("stop")
           .attr("offset", "0%")
           .attr("stop-color", sourceColor);
@@ -257,75 +235,11 @@ export class SankeyComponent implements OnInit {
       .attr("opacity", 0)
       .transition()
       .duration(this.animationDuration)
-      .attr("opacity", 1)
-      .on("end", (d: SankeyLink, i: number, nodes: ArrayLike<SVGPathElement>) => {
-        const pathEl = nodes[i];
-        const totalLength = pathEl.getTotalLength();
-        const midpoint = pathEl.getPointAtLength(totalLength / 2);
-        const parentEl = pathEl.parentNode as Element | null;
-        if (parentEl) {
-          // Retrieve source and target names.
-          const sourceNode = typeof d.source === 'object' ? d.source as SankeyNode : null;
-          const targetNode = typeof d.target === 'object' ? d.target as SankeyNode : null;
-          const sourceName = sourceNode ? sourceNode.name : "";
-          const targetName = targetNode ? targetNode.name : "";
-      
-          // Look up percentage (if not found, default to '0%').
-          const sourceIndex: number = (typeof d.source === 'object' && d.source !== null && 'index' in d.source)
-            ? (d.source as any).index
-            : d.source as number;
-          const targetIndex: number = (typeof d.target === 'object' && d.target !== null && 'index' in d.target)
-            ? (d.target as any).index
-            : d.target as number;
-          const percentage: string = graphLinksWithPercentages.find(link =>
-            link.source === sourceIndex && link.target === targetIndex
-          )?.percentageFromSource || '0%';
-      
-          // Define a horizontal offset to place the text to the right of the link.
-          const offset = 10;
-      
-          // Create a text element and append three tspans for multi-line text.
-          const text = d3.select(parentEl)
-            .append("text")
-            .attr("x", midpoint.x + offset)  // move text to the right
-            .attr("y", midpoint.y)
-            .attr("text-anchor", "start")    // align text to the left
-            .attr("opacity", 0);
-      
-          // First row: edge name (e.g., "Source -> Target")
-          text.append("tspan")
-            .text(sourceName
-              .replace(/_/g, ' ')
-              .replace(/\b\w/g, char => char.toUpperCase()))
-            .attr("x", midpoint.x + offset)
-            .attr("dy", "-1.2em")
-            .style("font-size", "10px"); // smaller font
-      
-          // Second row: value
-          text.append("tspan")
-            .text(`${this.formatNumber(d.value)}`)
-            .attr("x", midpoint.x + offset)
-            .attr("dy", "1.2em")
-            .style("font-size", "10px");
-      
-          // Third row: percentage in brackets
-          text.append("tspan")
-            .text(`(${percentage})`)
-            .attr("x", midpoint.x + offset)
-            .attr("dy", "1.2em")
-            .style("font-size", "10px");
-      
-          // Fade in the label.
-          text.transition()
-            .duration(this.animationDuration)
-            .attr("opacity", 1)
-            .attr("fill", "#000");
-        }
-      });
+      .attr("opacity", 1);
   }
 
   private renderNodes(graph: SankeyGraph<SankeyNode, SankeyLink>): void {
-    // Render node rectangles
+    // Render node rectangles.
     this.svg.append("g")
       .selectAll("rect")
       .data(graph.nodes)
@@ -341,17 +255,29 @@ export class SankeyComponent implements OnInit {
       .duration(this.animationDuration)
       .attr("opacity", 1);
 
-    // Append text labels to nodes with smaller font size and formatted names.
+    // Compute total flow from starting nodes (nodes with the smallest x0)
+    const minX0 = d3.min(graph.nodes, d => d.x0!)!;
+    const startingNodes = graph.nodes.filter(n => n.x0 === minX0);
+    const totalFlow = d3.sum(startingNodes, n => n.value!);
+
+    // Append text labels to nodes showing the name, value, and percentage.
     this.svg.append("g")
       .selectAll("text")
       .data(graph.nodes)
       .enter().append("text")
-      .attr("x", (d: SankeyNode) => d.x0! - 6) // adjust horizontal position as needed
+      .attr("x", (d: SankeyNode) => {
+        // If the node is on the left edge, place the label to the right; otherwise, to the left.
+        return d.x0! < 20 ? d.x1! + 6 : d.x0! - 6;
+      })
       .attr("y", (d: SankeyNode) => (d.y0! + d.y1!) / 2)
       .attr("dy", "0.35em")
-      .attr("text-anchor", "end")
-      .text(d => this.formatNodeName(d.name))
-      .style("font-size", "10px");  // decrease font size as desired
+      .attr("text-anchor", (d: SankeyNode) => d.x0! < 20 ? "start" : "end")
+      .text((d: SankeyNode) => {
+        // Compute percentage relative to the total flow.
+        const percentage = totalFlow ? ((d.value! / totalFlow) * 100).toFixed(2) + '%' : '0%';
+        return `${this.formatNodeName(d.name)} (${this.formatNumber(d.value!)} - ${percentage})`;
+      })
+      .style("font-size", "10px");
   }
 
   private convertDataToNodes(data: Record<string, any>): BackendNodesData {
@@ -399,34 +325,10 @@ export class SankeyComponent implements OnInit {
     }
     return value.toString();
   }
+
   private formatNodeName(name: string): string {
     return name.split('_')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
-  }
-
-
-  private computeLinkPercentages(links: { source: number; target: number; value: string }[]): {
-    source: number;
-    target: number;
-    value: number;
-    percentageFromSource: string;
-  }[] {
-    const targetTotals: { [key: number]: number } = {};
-    links.forEach(link => {
-      const target = link.target;
-      const value = parseFloat(link.value);
-      targetTotals[target] = (targetTotals[target] || 0) + value;
-    });
-    return links.map(link => {
-      const value = parseFloat(link.value);
-      const total = targetTotals[link.target];
-      const percentage = total ? (value / total) * 100 : 0;
-      return {
-        ...link,
-        value: value,
-        percentageFromSource: percentage.toFixed(2) + '%'
-      };
-    });
   }
 }
